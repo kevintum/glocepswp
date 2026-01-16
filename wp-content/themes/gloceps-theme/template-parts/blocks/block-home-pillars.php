@@ -96,7 +96,10 @@ if (!$use_pillars && !empty($custom_cards)) {
         }
         
         $pillar_description = get_field('pillar_description', $pillar) ?: term_description($pillar->term_id, 'research_pillar');
-        $pillar_link = get_term_link($pillar);
+        // Use gloceps_get_pillar_page() to get the correct /research/{slug}/ URL
+        $pillar_link = function_exists('gloceps_get_pillar_page') 
+            ? gloceps_get_pillar_page($pillar->slug) 
+            : get_term_link($pillar);
         
         // Fallback description
         if (empty($pillar_description)) {

@@ -6,12 +6,28 @@
  * @since 1.0.0
  */
 
+// Get post type
+$post_type = get_post_type();
+$post_id = get_the_ID();
+
+// Determine the appropriate link URL
+// For disabled single pages (team_member, video, podcast), link to archive instead
+$link_url = get_permalink();
+if ( in_array( $post_type, array( 'team_member', 'video', 'podcast' ) ) ) {
+    $archive_url = get_post_type_archive_link( $post_type );
+    if ( $archive_url ) {
+        $link_url = $archive_url;
+    } else {
+        $link_url = home_url( '/' );
+    }
+}
+
 ?>
 
 <article id="post-<?php the_ID(); ?>" <?php post_class( 'post-card' ); ?>>
     <?php if ( has_post_thumbnail() ) : ?>
     <div class="post-card__image">
-        <a href="<?php the_permalink(); ?>">
+        <a href="<?php echo esc_url( $link_url ); ?>">
             <?php the_post_thumbnail( 'gloceps-card' ); ?>
         </a>
     </div>
@@ -29,7 +45,7 @@
         </div>
         
         <h3 class="post-card__title">
-            <a href="<?php the_permalink(); ?>"><?php the_title(); ?></a>
+            <a href="<?php echo esc_url( $link_url ); ?>"><?php the_title(); ?></a>
         </h3>
         
         <p class="post-card__excerpt"><?php echo wp_kses_post( wp_trim_words( get_the_excerpt(), 20 ) ); ?></p>
@@ -41,7 +57,7 @@
                 </svg>
                 <?php the_author(); ?>
             </span>
-            <a href="<?php the_permalink(); ?>" class="post-card__link">
+            <a href="<?php echo esc_url( $link_url ); ?>" class="post-card__link">
                 <?php esc_html_e( 'Read More', 'gloceps' ); ?>
                 <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3" />

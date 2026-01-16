@@ -171,9 +171,13 @@ if ( $cta_button_link && is_array( $cta_button_link ) ) {
                         if ( $pillars && ! is_wp_error( $pillars ) ) {
                             echo '<nav class="footer__links">';
                             foreach ( $pillars as $pillar ) {
+                                // Use gloceps_get_pillar_page() to get the correct /research/{slug}/ URL
+                                $pillar_url = function_exists( 'gloceps_get_pillar_page' ) 
+                                    ? gloceps_get_pillar_page( $pillar->slug ) 
+                                    : get_term_link( $pillar );
                                 printf(
                                     '<a href="%s">%s</a>',
-                                    esc_url( get_term_link( $pillar ) ),
+                                    esc_url( $pillar_url ),
                                     esc_html( $pillar->name )
                                 );
                             }

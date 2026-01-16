@@ -13,6 +13,12 @@
 function gloceps_get_header_class() {
     $classes = array( 'header' );
     
+    // 404 page uses dark header
+    if ( is_404() ) {
+        $classes[] = 'header--dark';
+        return implode( ' ', $classes );
+    }
+    
     // Check if this is the Media page or Purchase page (by slug or template)
     $is_media_page = false;
     $is_purchase_page = false;

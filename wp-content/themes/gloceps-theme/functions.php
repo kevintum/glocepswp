@@ -135,7 +135,7 @@ function gloceps_scripts() {
         'gloceps-style',
         GLOCEPS_URI . '/assets/css/styles.css',
         array(),
-        GLOCEPS_VERSION
+        GLOCEPS_VERSION . '.' . time() // Add timestamp for cache busting
     );
 
     // Block components stylesheet
@@ -249,6 +249,7 @@ function gloceps_register_post_types() {
     );
 
     // Team Members CPT
+    // Note: Single pages disabled - team members are displayed in grids with modal bios only
     register_post_type(
         'team_member',
         array(
@@ -266,7 +267,7 @@ function gloceps_register_post_types() {
                 'not_found_in_trash' => __( 'No team members found in Trash', 'gloceps' ),
             ),
             'public'             => true,
-            'publicly_queryable' => true,
+            'publicly_queryable' => false, // Disable single pages - team members shown in grids only
             'show_ui'            => true,
             'show_in_menu'       => true,
             'query_var'          => true,
@@ -282,6 +283,7 @@ function gloceps_register_post_types() {
     );
 
     // Videos CPT
+    // Note: Single pages disabled - videos are displayed in grids/blocks only
     register_post_type(
         'video',
         array(
@@ -299,7 +301,7 @@ function gloceps_register_post_types() {
                 'not_found_in_trash' => __( 'No videos found in Trash', 'gloceps' ),
             ),
             'public'             => true,
-            'publicly_queryable' => true,
+            'publicly_queryable' => false, // Disable single pages - videos shown in grids only
             'show_ui'            => true,
             'show_in_menu'       => true,
             'query_var'          => true,
@@ -315,6 +317,7 @@ function gloceps_register_post_types() {
     );
 
     // Podcasts CPT
+    // Note: Single pages disabled - podcasts are displayed in grids/blocks only
     register_post_type(
         'podcast',
         array(
@@ -332,7 +335,7 @@ function gloceps_register_post_types() {
                 'not_found_in_trash' => __( 'No podcasts found in Trash', 'gloceps' ),
             ),
             'public'             => true,
-            'publicly_queryable' => true,
+            'publicly_queryable' => false, // Disable single pages - podcasts shown in grids only
             'show_ui'            => true,
             'show_in_menu'       => true,
             'query_var'          => true,
@@ -447,6 +450,7 @@ function gloceps_register_taxonomies() {
     );
 
     // Research Pillar (shared across multiple CPTs)
+    // Note: Taxonomy archive URLs redirect to /research/{term-slug}/ pages
     register_taxonomy(
         'research_pillar',
         array( 'publication', 'event', 'video', 'podcast', 'article' ),
@@ -463,11 +467,11 @@ function gloceps_register_taxonomies() {
                 'menu_name'         => __( 'Research Pillars', 'gloceps' ),
             ),
             'hierarchical'      => true,
-            'public'            => true,
+            'public'            => true, // Keep public so rewrite rules are registered
             'show_ui'           => true,
             'show_admin_column' => true,
             'query_var'         => true,
-            'rewrite'           => array( 'slug' => 'research-pillar' ),
+            'rewrite'           => array( 'slug' => 'research-pillar' ), // Keep rewrite for redirects to work
             'show_in_rest'      => true,
         )
     );
@@ -499,6 +503,7 @@ function gloceps_register_taxonomies() {
     );
 
     // Team Category
+    // Note: Taxonomy archives disabled - team categories used for filtering only
     register_taxonomy(
         'team_category',
         'team_member',
@@ -515,11 +520,12 @@ function gloceps_register_taxonomies() {
                 'menu_name'         => __( 'Team Categories', 'gloceps' ),
             ),
             'hierarchical'      => true,
-            'public'            => true,
+            'public'            => false, // Disable public archives
+            'publicly_queryable' => false, // Disable public querying
             'show_ui'           => true,
             'show_admin_column' => true,
             'query_var'         => true,
-            'rewrite'           => array( 'slug' => 'team-category' ),
+            'rewrite'           => false, // Disable rewrite to prevent archive URLs
             'show_in_rest'      => true,
         )
     );
@@ -1143,3 +1149,108 @@ function gloceps_enhance_search_query( $query ) {
     }
 }
 add_action( 'pre_get_posts', 'gloceps_enhance_search_query' );
+
+/**
+ * Redirect research_pillar taxonomy archive URLs to /research/{term-slug}/ pages
+ * 
+ * Handles redirects from /research-pillar/{term-slug}/ to /research/{term-slug}/
+ * This ensures old taxonomy archive URLs redirect to the proper custom pages
+ */
+function gloceps_redirect_research_pillar_archives() {
+    // Only run on frontend
+    if ( is_admin() ) {
+        return;
+    }
+    
+    // Check if this is a research_pillar taxonomy archive request
+    if ( is_tax( 'research_pillar' ) ) {
+        $term = get_queried_object();
+        
+        if ( $term && ! is_wp_error( $term ) ) {
+            // First, try to find a page at /research/{term-slug}/
+            $page = get_page_by_path( 'research/' . $term->slug );
+            
+            if ( $page ) {
+                // Page exists, redirect to it
+                wp_safe_redirect( get_permalink( $page->ID ), 301 );
+                exit;
+            } else {
+                // Page doesn't exist yet, but we still want to prevent the taxonomy archive
+                // Redirect to the research parent page or home
+                $research_page = get_page_by_path( 'research' );
+                if ( $research_page ) {
+                    wp_safe_redirect( get_permalink( $research_page->ID ), 301 );
+                } else {
+                    wp_safe_redirect( home_url( '/' ), 301 );
+                }
+                exit;
+            }
+        }
+    }
+}
+add_action( 'template_redirect', 'gloceps_redirect_research_pillar_archives' );
+
+/**
+ * Redirect disabled single post pages to appropriate archive pages
+ * 
+ * Handles redirects for:
+ * - Team member single pages -> /team/ archive
+ * - Video single pages -> /videos/ archive (or home if no archive)
+ * - Podcast single pages -> /podcasts/ archive (or home if no archive)
+ * - Team category taxonomy archives -> /team/ archive
+ */
+function gloceps_redirect_disabled_single_pages() {
+    // Only run on frontend
+    if ( is_admin() ) {
+        return;
+    }
+    
+    // Redirect team member single pages to /team/ archive
+    if ( is_singular( 'team_member' ) ) {
+        $team_archive = get_post_type_archive_link( 'team_member' );
+        if ( $team_archive ) {
+            wp_safe_redirect( $team_archive, 301 );
+            exit;
+        } else {
+            wp_safe_redirect( home_url( '/' ), 301 );
+            exit;
+        }
+    }
+    
+    // Redirect video single pages to /videos/ archive
+    if ( is_singular( 'video' ) ) {
+        $video_archive = get_post_type_archive_link( 'video' );
+        if ( $video_archive ) {
+            wp_safe_redirect( $video_archive, 301 );
+            exit;
+        } else {
+            wp_safe_redirect( home_url( '/' ), 301 );
+            exit;
+        }
+    }
+    
+    // Redirect podcast single pages to /podcasts/ archive
+    if ( is_singular( 'podcast' ) ) {
+        $podcast_archive = get_post_type_archive_link( 'podcast' );
+        if ( $podcast_archive ) {
+            wp_safe_redirect( $podcast_archive, 301 );
+            exit;
+        } else {
+            wp_safe_redirect( home_url( '/' ), 301 );
+            exit;
+        }
+    }
+    
+    // Redirect team category taxonomy archives to /team/ archive
+    if ( is_tax( 'team_category' ) ) {
+        $team_archive = get_post_type_archive_link( 'team_member' );
+        if ( $team_archive ) {
+            wp_safe_redirect( $team_archive, 301 );
+            exit;
+        } else {
+            wp_safe_redirect( home_url( '/' ), 301 );
+            exit;
+        }
+    }
+}
+add_action( 'template_redirect', 'gloceps_redirect_disabled_single_pages' );
