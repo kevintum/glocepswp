@@ -19,58 +19,18 @@
  * @package WordPress
  */
 
-// ** Database settings - Environment-aware configuration ** //
-/**
- * Environment Detection
- * Automatically detects environment based on domain/hostname
- */
-function gloceps_get_environment() {
-	// Get the current HTTP host
-	$host = isset( $_SERVER['HTTP_HOST'] ) ? $_SERVER['HTTP_HOST'] : '';
-	
-	// Remove port if present
-	$host = preg_replace( '/:\d+$/', '', $host );
-	
-	// Detect environment
-	if ( strpos( $host, 'gloceps.org' ) !== false || strpos( $host, 'www.gloceps.org' ) !== false ) {
-		return 'production';
-	} elseif ( strpos( $host, 'cloudwaysapps.com' ) !== false || strpos( $host, 'staging' ) !== false ) {
-		return 'staging';
-	} else {
-		return 'local';
-	}
-}
+// ** Database settings - You can get this info from your web host ** //
+/** The name of the database for WordPress */
+define( 'DB_NAME', 'local' );
 
-$environment = gloceps_get_environment();
+/** Database username */
+define( 'DB_USER', 'root' );
 
-// Database configuration based on environment
-switch ( $environment ) {
-	case 'staging':
-		// Cloudways Staging Database Credentials
-		define( 'DB_NAME', 'ewtdvzjjym' );
-		define( 'DB_USER', 'ewtdvzjjym' );
-		define( 'DB_PASSWORD', 'BCxnUj5t2M' );
-		define( 'DB_HOST', 'localhost' ); // Cloudways typically uses localhost
-		break;
-		
-	case 'production':
-		// Production Database Credentials (update when moving to production)
-		// TODO: Update these credentials when deploying to gloceps.org
-		define( 'DB_NAME', 'production_db_name' );
-		define( 'DB_USER', 'production_db_user' );
-		define( 'DB_PASSWORD', 'production_db_password' );
-		define( 'DB_HOST', 'localhost' );
-		break;
-		
-	case 'local':
-	default:
-		// Local Development Database Credentials
-		define( 'DB_NAME', 'local' );
-		define( 'DB_USER', 'root' );
-		define( 'DB_PASSWORD', 'root' );
-		define( 'DB_HOST', 'localhost' );
-		break;
-}
+/** Database password */
+define( 'DB_PASSWORD', 'root' );
+
+/** Database hostname */
+define( 'DB_HOST', 'localhost' );
 
 /** Database charset to use in creating database tables. */
 define( 'DB_CHARSET', 'utf8' );
@@ -127,32 +87,13 @@ $table_prefix = 'wp_';
  *
  * @link https://wordpress.org/support/article/debugging-in-wordpress/
  */
-// Environment-specific debugging settings
 if ( ! defined( 'WP_DEBUG' ) ) {
-	switch ( $environment ) {
-		case 'production':
-			define( 'WP_DEBUG', false );
-			define( 'WP_DEBUG_LOG', false );
-			define( 'WP_DEBUG_DISPLAY', false );
-			break;
-		case 'staging':
-			define( 'WP_DEBUG', true );
-			define( 'WP_DEBUG_LOG', true );
-			define( 'WP_DEBUG_DISPLAY', false );
-			break;
-		case 'local':
-		default:
-			define( 'WP_DEBUG', true );
-			define( 'WP_DEBUG_LOG', true );
-			define( 'WP_DEBUG_DISPLAY', false );
-			break;
-	}
+	define( 'WP_DEBUG', true );
+	define( 'WP_DEBUG_LOG', true );
+	define( 'WP_DEBUG_DISPLAY', false );
 }
 
-// Set WordPress environment type
-if ( ! defined( 'WP_ENVIRONMENT_TYPE' ) ) {
-	define( 'WP_ENVIRONMENT_TYPE', $environment );
-}
+define( 'WP_ENVIRONMENT_TYPE', 'local' );
 /* That's all, stop editing! Happy publishing. */
 
 /** Absolute path to the WordPress directory. */

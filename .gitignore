@@ -1,0 +1,18 @@
+# WordPress Configuration
+# This file contains sensitive database credentials and should not be committed
+wp-config.php
+
+# WordPress Debug Log
+wp-content/debug.log
+
+# WordPress Upgrade
+wp-content/upgrade/
+
+# WordPress Cache
+wp-content/cache/
+
+# WordPress Backups
+wp-content/backups-dup-lite/
+
+# Local Development Files
+local-xdebuginfo.php
