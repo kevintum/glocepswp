@@ -1,0 +1,86 @@
+/* ========================================
+   Hero Video Responsiveness - Complete Fix
+   ======================================== */
+/* Ensure container has proper dimensions */
+.hero__image {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+
+/* Desktop split layout - image takes full height of grid */
+.hero--split .hero__image {
+    height: 100%;
+    min-height: 100%;
+}
+
+/* Video and fallback image - identical absolute positioning and sizing */
+.hero__video:not(.hero__video--embed),
+.hero__image-fallback {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center center;
+    display: block;
+}
+
+/* YouTube/Vimeo embed - fill container with cover technique */
+.hero__video--embed {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 100vw;
+    height: 56.25vw; /* 16:9 aspect ratio */
+    min-width: 100%;
+    min-height: 100%;
+    min-width: 177.77vh; /* 16:9 aspect ratio for tall containers */
+    border: none;
+    pointer-events: none;
+}
+
+/* Mobile adjustments */
+@media (max-width: 768px) {
+    .hero--split .hero__image {
+        height: 50vh;
+        min-height: 300px;
+        max-height: 500px;
+        width: 100%;
+    }
+    
+    /* Ensure video fills mobile container identically to image */
+    .hero__video:not(.hero__video--embed),
+    .hero__image-fallback {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        object-position: center center;
+    }
+    
+    /* Mobile embed - simpler sizing to fill container */
+    .hero__video--embed {
+        width: 100%;
+        height: 100%;
+        min-width: 100%;
+        min-height: 100%;
+        transform: translate(-50%, -50%);
+    }
+}
+
+/* Tablet adjustments */
+@media (min-width: 769px) and (max-width: 1024px) {
+    .hero--split .hero__image {
+        height: 100%;
+    }
+    
+    .hero__video:not(.hero__video--embed),
+    .hero__image-fallback {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+}

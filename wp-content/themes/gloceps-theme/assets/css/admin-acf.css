@@ -1,0 +1,97 @@
+/**
+ * ACF Flexible Content Admin Enhancements
+ */
+
+/* Move controls styling */
+.acf-fc-move-controls {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    margin-left: 8px;
+    margin-right: 4px;
+}
+
+.acf-fc-layout-controls {
+    display: flex;
+    align-items: center;
+}
+
+.acf-fc-move-up,
+.acf-fc-move-down {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    padding: 0;
+    margin: 0;
+    border: 1px solid #c3c4c7;
+    background: #fff;
+    border-radius: 3px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.acf-fc-move-up:hover,
+.acf-fc-move-down:hover {
+    background: #f0f0f1;
+    border-color: #8c8f94;
+}
+
+.acf-fc-move-up:active,
+.acf-fc-move-down:active {
+    background: #dcdcde;
+}
+
+.acf-fc-move-up:disabled,
+.acf-fc-move-down:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.acf-fc-move-up .dashicons,
+.acf-fc-move-down .dashicons {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+    line-height: 1;
+}
+
+/* Position controls in layout header */
+.acf-fc-layout-handle {
+    display: flex;
+    align-items: center;
+    position: relative;
+}
+
+/* Sortable placeholder */
+.acf-fc-layout-placeholder {
+    background: #f0f6fc;
+    border: 2px dashed #2271b1;
+    margin-bottom: 10px;
+    min-height: 60px;
+    opacity: 0.5;
+}
+
+/* Ensure drag handle is visible */
+.acf-fc-layout-handle {
+    cursor: move !important;
+}
+
+.acf-fc-layout-handle:hover {
+    background: #f6f7f7;
+}
+
+/* Fix collapse icon */
+.acf-icon.-collapse {
+    cursor: pointer;
+}
+
+.acf-icon.-collapse:hover {
+    opacity: 0.7;
+}
+
+/* Collapsed state */
+.acf-fc-layout.-collapsed .acf-fc-layout-contents {
+    display: none;
+}

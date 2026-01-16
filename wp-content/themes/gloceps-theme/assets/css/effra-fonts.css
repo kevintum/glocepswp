@@ -1,0 +1,104 @@
+/**
+ * Effra Font Face Declarations
+ * Self-hosted font files
+ */
+
+@font-face {
+    font-family: 'Effra';
+    src: url('../fonts/effra/Effra-LightItalic.woff2') format('woff2'),
+         url('../fonts/effra/Effra-LightItalic.woff') format('woff'),
+         url('../fonts/effra/Effra-LightItalic.ttf') format('truetype');
+    font-weight: 300;
+    font-style: italic;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Effra';
+    src: url('../fonts/effra/Effra.woff2') format('woff2'),
+         url('../fonts/effra/Effra.woff') format('woff'),
+         url('../fonts/effra/Effra.ttf') format('truetype');
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Effra';
+    src: url('../fonts/effra/Effra-Bold.woff2') format('woff2'),
+         url('../fonts/effra/Effra-Bold.woff') format('woff'),
+         url('../fonts/effra/Effra-Bold.ttf') format('truetype');
+    font-weight: 700;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Effra';
+    src: url('../fonts/effra/Effra-Light.woff2') format('woff2'),
+         url('../fonts/effra/Effra-Light.woff') format('woff'),
+         url('../fonts/effra/Effra-Light.ttf') format('truetype');
+    font-weight: 300;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Effra';
+    src: url('../fonts/effra/Effra-MediumItalic.woff2') format('woff2'),
+         url('../fonts/effra/Effra-MediumItalic.woff') format('woff'),
+         url('../fonts/effra/Effra-MediumItalic.ttf') format('truetype');
+    font-weight: 500;
+    font-style: italic;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Effra';
+    src: url('../fonts/effra/EffraHeavy-Italic.woff2') format('woff2'),
+         url('../fonts/effra/EffraHeavy-Italic.woff') format('woff'),
+         url('../fonts/effra/EffraHeavy-Italic.ttf') format('truetype');
+    font-weight: 900;
+    font-style: italic;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Effra';
+    src: url('../fonts/effra/Effra-Italic.woff2') format('woff2'),
+         url('../fonts/effra/Effra-Italic.woff') format('woff'),
+         url('../fonts/effra/Effra-Italic.ttf') format('truetype');
+    font-weight: 400;
+    font-style: italic;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Effra';
+    src: url('../fonts/effra/Effra-BoldItalic.woff2') format('woff2'),
+         url('../fonts/effra/Effra-BoldItalic.woff') format('woff'),
+         url('../fonts/effra/Effra-BoldItalic.ttf') format('truetype');
+    font-weight: 700;
+    font-style: italic;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Effra';
+    src: url('../fonts/effra/Effra-Medium.woff2') format('woff2'),
+         url('../fonts/effra/Effra-Medium.woff') format('woff'),
+         url('../fonts/effra/Effra-Medium.ttf') format('truetype');
+    font-weight: 500;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Effra';
+    src: url('../fonts/effra/Effra-Heavy.woff2') format('woff2'),
+         url('../fonts/effra/Effra-Heavy.woff') format('woff'),
+         url('../fonts/effra/Effra-Heavy.ttf') format('truetype');
+    font-weight: 900;
+    font-style: normal;
+    font-display: swap;
+}

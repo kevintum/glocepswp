@@ -1,0 +1,24 @@
+/*
+Theme Name: GLOCEPS Theme
+Theme URI: https://gloceps.org
+Author: Kevin Tum
+Author URI: https://www.kevintum.com/
+Description: Custom WordPress theme for the Global Centre for Policy and Strategy (GLOCEPS). A premium think tank website featuring publications, events, research pillars, and WooCommerce integration for publication sales.
+Version: 1.0.0
+Tested up to: 6.4
+Requires PHP: 8.0
+License: GNU General Public License v2 or later
+License URI: http://www.gnu.org/licenses/gpl-2.0.html
+Text Domain: gloceps
+Tags: think-tank, policy, research, publications, woocommerce, custom-logo, custom-menu, featured-images
+
+This theme is designed specifically for GLOCEPS, featuring:
+- Custom Post Types for Publications, Events, Team Members, Videos, Podcasts, Galleries, and Articles
+- WooCommerce integration for premium publication sales
+- ACF Flexible Content page builder with reusable content blocks
+- Advanced filtering and search functionality
+- Responsive design with premium animations
+- ACF Pro integration for custom fields
+*/
+
+/* Theme styles are loaded from assets/css/styles.css via functions.php */

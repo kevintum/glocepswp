@@ -1,0 +1,144 @@
+/**
+ * Effra Font Specific Overrides
+ * These styles only apply when Effra font is selected
+ * Adjusts sizes and weights to maintain visual hierarchy with Effra
+ * 
+ * Note: This file is only loaded when Effra is selected in theme settings
+ */
+
+/* Base heading adjustments - Effra appears larger, so reduce sizes slightly */
+body.font-effra-active h1 {
+  font-size: clamp(2rem, 3vw, 2.75rem) !important; /* Reduced from text-6xl */
+  font-weight: 300; /* Light weight for large headings */
+}
+
+body.font-effra-active h2 {
+  font-size: clamp(1.625rem, 2.25vw, 2rem) !important; /* Reduced from text-4xl */
+  font-weight: 400; /* Regular weight */
+}
+
+body.font-effra-active h3 {
+  font-size: clamp(1.25rem, 1.75vw, 1.625rem) !important; /* Reduced from text-3xl */
+  font-weight: 500; /* Medium weight instead of default */
+}
+
+body.font-effra-active h4 {
+  font-size: clamp(1.125rem, 1.4vw, 1.375rem) !important; /* Reduced from text-2xl */
+  font-weight: 500;
+}
+
+/* Component-specific adjustments */
+
+/* Team Card Names - Reduce size and adjust weight */
+body.font-effra-active .team-card__name {
+  font-size: clamp(0.875rem, 1vw, 1rem) !important; /* Reduced from text-lg to text-base */
+  font-weight: 500 !important; /* Medium instead of 600 */
+  line-height: 1.4;
+}
+
+/* Publication Item Titles */
+body.font-effra-active .pub-item__title {
+  font-size: clamp(0.875rem, 1vw, 1rem) !important; /* Reduced from text-lg to text-base */
+  font-weight: 500 !important; /* Medium instead of 600 */
+  line-height: 1.4;
+}
+
+/* Other Pillar Card Titles */
+body.font-effra-active .other-pillar-card__title {
+  font-size: clamp(0.875rem, 1vw, 1rem) !important; /* Reduced from text-lg to text-base */
+  font-weight: 500 !important; /* Medium instead of 600 */
+}
+
+/* Publication Card Titles */
+body.font-effra-active .publication-card__title {
+  font-size: clamp(0.875rem, 1vw, 1rem) !important; /* Reduced from text-lg to text-base */
+  font-weight: 500 !important; /* Medium instead of 600 */
+  line-height: 1.4;
+}
+
+/* Publications Feed Grid - already text-base, but ensure consistency */
+body.font-effra-active .publications-feed__grid .publication-card__title {
+  font-weight: 500 !important;
+}
+
+/* Pillar Card Titles */
+body.font-effra-active .pillar-card__title {
+  font-size: clamp(1rem, 1.1vw, 1.125rem) !important; /* Reduced from text-xl */
+  font-weight: 500 !important; /* Medium instead of 600 */
+}
+
+/* Pub Card Titles (in sliders/grids) */
+body.font-effra-active .pub-card__title {
+  font-size: clamp(0.875rem, 1vw, 1rem) !important; /* Reduced from text-lg */
+  font-weight: 500 !important;
+}
+
+/* Section Headers - adjust if needed */
+body.font-effra-active .section-header__title {
+  font-weight: 300 !important; /* Light for large section titles */
+}
+
+/* Display text adjustments */
+body.font-effra-active .display-text {
+  font-size: clamp(3rem, 6vw, 5rem) !important; /* Reduced from text-7xl */
+  font-weight: 300 !important;
+}
+
+/* Hero titles and large headings */
+body.font-effra-active .hero__title {
+  font-size: clamp(1.875rem, 3.5vw, 2.75rem) !important; /* Reduced from larger size */
+  font-weight: 300 !important; /* Light weight instead of 700 */
+  line-height: 1.2;
+}
+
+body.font-effra-active .page-header__title {
+  font-weight: 300 !important; /* Light weight for large hero titles */
+}
+
+/* Pillar Hero Title */
+body.font-effra-active .pillar-hero__title {
+  font-size: clamp(2.25rem, 4vw, 3.5rem) !important; /* Reduced from text-6xl/7xl */
+  font-weight: 300 !important;
+}
+
+/* General heading weight adjustments for Effra */
+body.font-effra-active h1,
+body.font-effra-active h2 {
+  letter-spacing: -0.01em; /* Slightly tighter letter spacing for Effra */
+}
+
+/* Body and Paragraph Text - Increase size for better readability with Effra */
+/* Effra works best at 16-18px for body text (optimal readability) */
+body.font-effra-active {
+  font-size: clamp(1rem, 1.1vw, 1.125rem) !important; /* 16px to 18px instead of 14.4px to 16px */
+  line-height: 1.7 !important; /* Slightly increased line height for better readability */
+}
+
+body.font-effra-active p,
+body.font-effra-active article p,
+body.font-effra-active main p {
+  font-size: clamp(1rem, 1.1vw, 1.125rem) !important; /* 16px to 18px */
+  line-height: 1.7 !important;
+}
+
+/* Article content paragraphs - ensure they're readable */
+body.font-effra-active .article-single__content p,
+body.font-effra-active article.article-single .article-single__content p,
+body.font-effra-active .article-single__body .article-single__content p {
+  font-size: clamp(1rem, 1.1vw, 1.125rem) !important; /* 16px to 18px */
+  line-height: 1.75 !important; /* Generous line height for long-form reading */
+}
+
+/* Event description paragraphs */
+body.font-effra-active .event-description p {
+  font-size: clamp(1rem, 1.1vw, 1.125rem) !important;
+  line-height: 1.75 !important;
+}
+
+/* General content areas */
+body.font-effra-active .content p,
+body.font-effra-active main p,
+body.font-effra-active article p {
+  font-size: clamp(1rem, 1.1vw, 1.125rem) !important;
+  line-height: 1.7 !important;
+}
