@@ -49,13 +49,11 @@ wp-content/uploads/
 !wp-content/uploads/.gitkeep
 
 # ============================================
-# Third-Party Plugins (Exclude All)
+# Third-Party Plugins (Include in Git)
 # ============================================
-# Exclude all plugins - they should be installed via Composer or manually
-wp-content/plugins/
-# But keep the directory structure
+# Plugins are included in Git for easier deployment across environments
+# Keep the directory structure
 !wp-content/plugins/index.php
-!wp-content/plugins/.gitkeep
 
 # ============================================
 # Default WordPress Themes (Exclude)
