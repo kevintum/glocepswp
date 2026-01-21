@@ -44,7 +44,7 @@ if ( in_array( $post_type, array( 'team_member', 'video', 'podcast' ) ) ) {
             <time class="post-card__date"><?php echo esc_html( get_the_date() ); ?></time>
         </div>
         
-        <h3 class="post-card__title">
+        <h4 class="post-card__title">
             <a href="<?php echo esc_url( $link_url ); ?>"><?php the_title(); ?></a>
         </h3>
         

@@ -99,7 +99,7 @@ if ( $access_type === 'premium' ) {
                 <span class="publication-card__pillar"><?php echo esc_html( $pillars[0]->name ); ?></span>
                 <?php endif; ?>
             </div>
-            <h3 class="publication-card__title"><?php the_title(); ?></h3>
+            <h4 class="publication-card__title"><?php the_title(); ?></h4>
             <?php if ( $excerpt ) : ?>
             <p class="publication-card__excerpt"><?php echo esc_html( $excerpt ); ?></p>
             <?php endif; ?>

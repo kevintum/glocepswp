@@ -204,7 +204,12 @@ function gloceps_register_post_types() {
             'show_ui'            => true,
             'show_in_menu'       => true,
             'query_var'          => true,
-            'rewrite'            => array( 'slug' => 'publications' ),
+            'rewrite'            => array( 
+                'slug' => 'publications',
+                'with_front' => false,
+                'pages' => true,
+                'feeds' => true,
+            ),
             'capability_type'    => 'post',
             'has_archive'        => true,
             'hierarchical'       => false,
@@ -249,7 +254,7 @@ function gloceps_register_post_types() {
     );
 
     // Team Members CPT
-    // Note: Single pages disabled - team members are displayed in grids with modal bios only
+    // Note: Archive page enabled, but single pages are redirected via template_redirect hook
     register_post_type(
         'team_member',
         array(
@@ -267,7 +272,7 @@ function gloceps_register_post_types() {
                 'not_found_in_trash' => __( 'No team members found in Trash', 'gloceps' ),
             ),
             'public'             => true,
-            'publicly_queryable' => false, // Disable single pages - team members shown in grids only
+            'publicly_queryable' => true, // Enable for archive, single pages redirected via template_redirect
             'show_ui'            => true,
             'show_in_menu'       => true,
             'query_var'          => true,
@@ -283,7 +288,7 @@ function gloceps_register_post_types() {
     );
 
     // Videos CPT
-    // Note: Single pages disabled - videos are displayed in grids/blocks only
+    // Note: Archive page enabled, but single pages are redirected via template_redirect hook
     register_post_type(
         'video',
         array(
@@ -301,11 +306,16 @@ function gloceps_register_post_types() {
                 'not_found_in_trash' => __( 'No videos found in Trash', 'gloceps' ),
             ),
             'public'             => true,
-            'publicly_queryable' => false, // Disable single pages - videos shown in grids only
+            'publicly_queryable' => true, // Enable for archive, single pages redirected via template_redirect
             'show_ui'            => true,
             'show_in_menu'       => true,
             'query_var'          => true,
-            'rewrite'            => array( 'slug' => 'videos' ),
+            'rewrite'            => array( 
+                'slug' => 'videos',
+                'with_front' => false,
+                'pages' => true,
+                'feeds' => true,
+            ),
             'capability_type'    => 'post',
             'has_archive'        => true,
             'hierarchical'       => false,
@@ -317,7 +327,7 @@ function gloceps_register_post_types() {
     );
 
     // Podcasts CPT
-    // Note: Single pages disabled - podcasts are displayed in grids/blocks only
+    // Note: Archive page enabled, but single pages are redirected via template_redirect hook
     register_post_type(
         'podcast',
         array(
@@ -335,11 +345,16 @@ function gloceps_register_post_types() {
                 'not_found_in_trash' => __( 'No podcasts found in Trash', 'gloceps' ),
             ),
             'public'             => true,
-            'publicly_queryable' => false, // Disable single pages - podcasts shown in grids only
+            'publicly_queryable' => true, // Enable for archive, single pages redirected via template_redirect
             'show_ui'            => true,
             'show_in_menu'       => true,
             'query_var'          => true,
-            'rewrite'            => array( 'slug' => 'podcasts' ),
+            'rewrite'            => array( 
+                'slug' => 'podcasts',
+                'with_front' => false,
+                'pages' => true,
+                'feeds' => true,
+            ),
             'capability_type'    => 'post',
             'has_archive'        => true,
             'hierarchical'       => false,
@@ -372,7 +387,12 @@ function gloceps_register_post_types() {
             'show_ui'            => true,
             'show_in_menu'       => true,
             'query_var'          => true,
-            'rewrite'            => array( 'slug' => 'galleries' ),
+            'rewrite'            => array( 
+                'slug' => 'galleries',
+                'with_front' => false,
+                'pages' => true,
+                'feeds' => true,
+            ),
             'capability_type'    => 'post',
             'has_archive'        => true,
             'hierarchical'       => false,
@@ -405,13 +425,56 @@ function gloceps_register_post_types() {
             'show_ui'            => true,
             'show_in_menu'       => true,
             'query_var'          => true,
-            'rewrite'            => array( 'slug' => 'articles' ),
+            'rewrite'            => array( 
+                'slug' => 'articles',
+                'with_front' => false,
+                'pages' => true,
+                'feeds' => true,
+            ),
             'capability_type'    => 'post',
             'has_archive'        => true,
             'hierarchical'       => false,
             'menu_position'      => 11,
             'menu_icon'          => 'dashicons-admin-post',
             'supports'           => array( 'title', 'editor', 'thumbnail', 'excerpt', 'author' ),
+            'show_in_rest'       => true,
+        )
+    );
+
+    // Speeches CPT
+    register_post_type(
+        'speech',
+        array(
+            'labels'             => array(
+                'name'               => _x( 'Speeches', 'post type general name', 'gloceps' ),
+                'singular_name'      => _x( 'Speech', 'post type singular name', 'gloceps' ),
+                'menu_name'          => _x( 'Speeches', 'admin menu', 'gloceps' ),
+                'add_new'            => _x( 'Add New', 'speech', 'gloceps' ),
+                'add_new_item'       => __( 'Add New Speech', 'gloceps' ),
+                'edit_item'          => __( 'Edit Speech', 'gloceps' ),
+                'new_item'           => __( 'New Speech', 'gloceps' ),
+                'view_item'          => __( 'View Speech', 'gloceps' ),
+                'search_items'       => __( 'Search Speeches', 'gloceps' ),
+                'not_found'          => __( 'No speeches found', 'gloceps' ),
+                'not_found_in_trash' => __( 'No speeches found in Trash', 'gloceps' ),
+            ),
+            'public'             => true,
+            'publicly_queryable' => true,
+            'show_ui'            => true,
+            'show_in_menu'       => true,
+            'query_var'          => true,
+            'rewrite'            => array( 
+                'slug' => 'speeches',
+                'with_front' => false,
+                'pages' => true,
+                'feeds' => true,
+            ),
+            'capability_type'    => 'post',
+            'has_archive'        => true,
+            'hierarchical'       => false,
+            'menu_position'      => 12,
+            'menu_icon'          => 'dashicons-microphone',
+            'supports'           => array( 'title', 'editor', 'thumbnail', 'excerpt' ),
             'show_in_rest'       => true,
         )
     );
@@ -1011,6 +1074,43 @@ function gloceps_output_dynamic_css() {
         $css .= '.header__logo-text strong { font-family: var(--font-site-title) !important; }';
     }
     
+    // Text Truncation Settings
+    $truncation = get_field( 'text_truncation', 'option' );
+    if ( $truncation && isset( $truncation['enable_truncation'] ) && $truncation['enable_truncation'] ) {
+        $title_limit = isset( $truncation['title_word_limit'] ) ? intval( $truncation['title_word_limit'] ) : 10;
+        $desc_limit = isset( $truncation['description_word_limit'] ) ? intval( $truncation['description_word_limit'] ) : 20;
+        
+        // Add CSS variables for truncation
+        $css .= ':root {';
+        $css .= '--title-word-limit: ' . $title_limit . ';';
+        $css .= '--desc-word-limit: ' . $desc_limit . ';';
+        $css .= '--truncation-enabled: 1;';
+        $css .= '}';
+        
+        // Enable truncation CSS
+        $css .= '.podcast-card__title, .article-card__title, .video-card__title, .speech-card__title, .event-card__title, .publication-card__title, .gallery-card__title, .pillar-card__title, .other-pillar-card__title, .theme-card__title {';
+        $css .= 'display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; text-overflow: ellipsis; word-break: break-word;';
+        $css .= '}';
+        
+        $css .= '.podcast-card__excerpt, .article-card__excerpt, .video-card__excerpt, .speech-card__excerpt, .event-card__excerpt, .publication-card__excerpt, .gallery-card__excerpt {';
+        $css .= 'display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; text-overflow: ellipsis; word-break: break-word;';
+        $css .= '}';
+    } else {
+        // Disable truncation
+        $css .= ':root {';
+        $css .= '--truncation-enabled: 0;';
+        $css .= '}';
+        
+        // Remove truncation CSS
+        $css .= '.podcast-card__title, .article-card__title, .video-card__title, .speech-card__title, .event-card__title, .publication-card__title, .gallery-card__title, .pillar-card__title, .other-pillar-card__title, .theme-card__title {';
+        $css .= 'display: block; overflow: visible; text-overflow: clip;';
+        $css .= '}';
+        
+        $css .= '.podcast-card__excerpt, .article-card__excerpt, .video-card__excerpt, .speech-card__excerpt, .event-card__excerpt, .publication-card__excerpt, .gallery-card__excerpt {';
+        $css .= 'display: block; overflow: visible; text-overflow: clip;';
+        $css .= '}';
+    }
+    
     // Color Settings
     $colors = get_field( 'color_settings', 'option' );
     if ( $colors ) {
@@ -1061,6 +1161,23 @@ function gloceps_output_dynamic_css() {
     }
 }
 add_action( 'wp_head', 'gloceps_output_dynamic_css', 100 );
+
+/**
+ * Add noindex meta tag for disabled single pages (video, podcast, speech)
+ * This prevents search engines from indexing these pages even if redirects fail
+ */
+function gloceps_add_noindex_for_disabled_singles() {
+    // Only run on frontend
+    if ( is_admin() ) {
+        return;
+    }
+    
+    // Add noindex for video, podcast, and speech single pages
+    if ( is_singular( 'video' ) || is_singular( 'podcast' ) || is_singular( 'speech' ) ) {
+        echo '<meta name="robots" content="noindex, nofollow" />' . "\n";
+    }
+}
+add_action( 'wp_head', 'gloceps_add_noindex_for_disabled_singles', 1 );
 
 /**
  * Helper function to darken a hex color
@@ -1137,6 +1254,7 @@ function gloceps_enhance_search_query( $query ) {
                 'podcast',
                 'gallery',
                 'article',
+                'speech',
                 'post',
                 'page',
             ) );
@@ -1149,6 +1267,93 @@ function gloceps_enhance_search_query( $query ) {
     }
 }
 add_action( 'pre_get_posts', 'gloceps_enhance_search_query' );
+
+/**
+ * Fix pagination for custom post type archives
+ * Ensures paged query parameter is recognized for archive pages
+ */
+function gloceps_fix_cpt_archive_pagination_request( $query_vars ) {
+    // Check if this is a request to any custom post type archive with paged parameter
+    if ( ! is_admin() && isset( $_SERVER['REQUEST_URI'] ) ) {
+        $request_uri = $_SERVER['REQUEST_URI'];
+        
+        // Define custom post types and their archive slugs
+        $cpt_archives = array(
+            'publication' => '/publications',
+            'video' => '/videos',
+            'podcast' => '/podcasts',
+            'article' => '/articles',
+            'gallery' => '/galleries',
+            'speech' => '/speeches',
+        );
+        
+        // Check each post type
+        foreach ( $cpt_archives as $post_type => $archive_slug ) {
+            if ( strpos( $request_uri, $archive_slug ) !== false || 
+                 ( isset( $query_vars['post_type'] ) && $query_vars['post_type'] === $post_type ) ) {
+                
+                // If paged is in GET but not in query_vars, add it
+                if ( isset( $_GET['paged'] ) && ! isset( $query_vars['paged'] ) ) {
+                    $paged = absint( $_GET['paged'] );
+                    if ( $paged > 0 ) {
+                        $query_vars['paged'] = $paged;
+                    }
+                }
+                
+                // Ensure post_type is set
+                if ( ! isset( $query_vars['post_type'] ) ) {
+                    $query_vars['post_type'] = $post_type;
+                }
+                
+                break; // Found matching post type, no need to continue
+            }
+        }
+    }
+    
+    return $query_vars;
+}
+add_filter( 'request', 'gloceps_fix_cpt_archive_pagination_request', 10, 1 );
+
+/**
+ * Fix pagination for custom post type archives in main query
+ */
+function gloceps_fix_cpt_archive_pagination( $query ) {
+    // Only run on frontend, main query
+    if ( is_admin() || ! $query->is_main_query() ) {
+        return;
+    }
+    
+    // Define custom post types and their archive slugs
+    $cpt_archives = array(
+        'publication' => '/publications',
+        'video' => '/videos',
+        'podcast' => '/podcasts',
+        'article' => '/articles',
+        'gallery' => '/galleries',
+        'speech' => '/speeches',
+    );
+    
+    // Check each post type
+    foreach ( $cpt_archives as $post_type => $archive_slug ) {
+        if ( $query->is_post_type_archive( $post_type ) || 
+             ( isset( $_SERVER['REQUEST_URI'] ) && strpos( $_SERVER['REQUEST_URI'], $archive_slug ) !== false ) ) {
+            
+            // Set post type explicitly
+            $query->set( 'post_type', $post_type );
+            
+            // Handle paged parameter from query string
+            if ( isset( $_GET['paged'] ) ) {
+                $paged = absint( $_GET['paged'] );
+                if ( $paged > 0 ) {
+                    $query->set( 'paged', $paged );
+                }
+            }
+            
+            break; // Found matching post type, no need to continue
+        }
+    }
+}
+add_action( 'pre_get_posts', 'gloceps_fix_cpt_archive_pagination', 5 );
 
 /**
  * Redirect research_pillar taxonomy archive URLs to /research/{term-slug}/ pages
@@ -1197,12 +1402,50 @@ add_action( 'template_redirect', 'gloceps_redirect_research_pillar_archives' );
  * - Team member single pages -> /team/ archive
  * - Video single pages -> /videos/ archive (or home if no archive)
  * - Podcast single pages -> /podcasts/ archive (or home if no archive)
+ * - Speech single pages -> /speeches/ archive (or home if no archive)
  * - Team category taxonomy archives -> /team/ archive
  */
 function gloceps_redirect_disabled_single_pages() {
     // Only run on frontend
     if ( is_admin() ) {
         return;
+    }
+    
+    // IMPORTANT: Do NOT redirect the archive page itself
+    // Only redirect single post pages, not the archive
+    // Check for archive pages first - must check before is_singular() to prevent false positives
+    global $wp_query;
+    
+    // Check if this is an archive page for video, podcast, or speech
+    if ( is_post_type_archive( 'team_member' ) || 
+         is_post_type_archive( 'video' ) || 
+         is_post_type_archive( 'podcast' ) ||
+         is_post_type_archive( 'speech' ) ) {
+        return; // Allow archive pages to load normally
+    }
+    
+    // Additional check: if query var indicates archive and we're not singular
+    $post_type = get_query_var( 'post_type' );
+    if ( ( $post_type === 'video' || $post_type === 'podcast' || $post_type === 'speech' ) && 
+         ! is_singular() && 
+         ( is_archive() || ( isset( $wp_query->is_archive ) && $wp_query->is_archive ) ) ) {
+        return; // Allow archive pages to load normally
+    }
+    
+    // Check REQUEST_URI to see if we're on an archive page
+    if ( isset( $_SERVER['REQUEST_URI'] ) ) {
+        $request_uri = $_SERVER['REQUEST_URI'];
+        // Remove query string
+        $request_uri = strtok( $request_uri, '?' );
+        // Check if URI matches archive patterns
+        if ( preg_match( '#^/videos/?$#', $request_uri ) || 
+             preg_match( '#^/podcasts/?$#', $request_uri ) ||
+             preg_match( '#^/speeches/?$#', $request_uri ) ||
+             preg_match( '#^/videos/page/#', $request_uri ) ||
+             preg_match( '#^/podcasts/page/#', $request_uri ) ||
+             preg_match( '#^/speeches/page/#', $request_uri ) ) {
+            return; // Allow archive pages to load normally
+        }
     }
     
     // Redirect team member single pages to /team/ archive
@@ -1241,6 +1484,18 @@ function gloceps_redirect_disabled_single_pages() {
         }
     }
     
+    // Redirect speech single pages to /speeches/ archive
+    if ( is_singular( 'speech' ) ) {
+        $speech_archive = get_post_type_archive_link( 'speech' );
+        if ( $speech_archive ) {
+            wp_safe_redirect( $speech_archive, 301 );
+            exit;
+        } else {
+            wp_safe_redirect( home_url( '/' ), 301 );
+            exit;
+        }
+    }
+    
     // Redirect team category taxonomy archives to /team/ archive
     if ( is_tax( 'team_category' ) ) {
         $team_archive = get_post_type_archive_link( 'team_member' );
@@ -1253,4 +1508,106 @@ function gloceps_redirect_disabled_single_pages() {
         }
     }
 }
-add_action( 'template_redirect', 'gloceps_redirect_disabled_single_pages' );
+add_action( 'template_redirect', 'gloceps_redirect_disabled_single_pages', 5 );
+
+/**
+ * Fix 404 errors on paginated custom post type archive pages
+ * Handles cases where WordPress doesn't recognize /{post-type}/?paged=X as valid
+ */
+function gloceps_fix_cpt_archive_404() {
+    // Only run on frontend
+    if ( is_admin() ) {
+        return;
+    }
+    
+    global $wp_query;
+    
+    // Check if this is a 404 and might be a custom post type archive pagination
+    if ( is_404() && isset( $_SERVER['REQUEST_URI'] ) ) {
+        $request_uri = $_SERVER['REQUEST_URI'];
+        
+        // Define custom post types and their archive slugs
+        $cpt_archives = array(
+            'publication' => '/publications',
+            'video' => '/videos',
+            'podcast' => '/podcasts',
+            'article' => '/articles',
+            'gallery' => '/galleries',
+        );
+        
+        // Check each post type
+        foreach ( $cpt_archives as $post_type => $archive_slug ) {
+            if ( strpos( $request_uri, $archive_slug ) !== false ) {
+                // Parse the URL to check for paged parameter
+                $parsed_url = parse_url( $request_uri );
+                $path = isset( $parsed_url['path'] ) ? $parsed_url['path'] : '';
+                
+                // Check if path matches archive or archive/page/X/ format
+                $is_archive = false;
+                $paged = 1;
+                
+                // Check base archive or with query string
+                if ( $path === $archive_slug . '/' || $path === $archive_slug ) {
+                    $is_archive = true;
+                    if ( isset( $_GET['paged'] ) ) {
+                        $paged = absint( $_GET['paged'] );
+                    }
+                } elseif ( preg_match( '#^' . preg_quote( $archive_slug, '#' ) . '/page/(\d+)/?$#', $path, $matches ) ) {
+                    // Pretty permalink format: /{archive}/page/2/
+                    $is_archive = true;
+                    $paged = absint( $matches[1] );
+                }
+                
+                if ( $is_archive ) {
+                    // This is a valid archive request, prevent 404
+                    
+                    // Reset query flags
+                    $wp_query->is_404 = false;
+                    $wp_query->is_archive = true;
+                    $wp_query->is_post_type_archive = true;
+                    $wp_query->is_home = false;
+                    $wp_query->is_front_page = false;
+                    
+                    // Set query vars properly
+                    $wp_query->set( 'post_type', $post_type );
+                    $wp_query->set( 'paged', $paged );
+                    
+                    // Get posts per page (use theme setting for publications, default for others)
+                    $posts_per_page = get_option( 'posts_per_page' );
+                    if ( $post_type === 'publication' && function_exists( 'get_field' ) ) {
+                        $posts_per_page = absint( get_field( 'publications_per_page', 'option' ) ) ?: 12;
+                    }
+                    $wp_query->set( 'posts_per_page', $posts_per_page );
+                    
+                    // Clear any existing query results
+                    $wp_query->posts = array();
+                    $wp_query->post_count = 0;
+                    
+                    // Build query args
+                    $query_args = array(
+                        'post_type' => $post_type,
+                        'paged' => $paged,
+                        'posts_per_page' => $posts_per_page,
+                        'orderby' => 'date',
+                        'order' => 'DESC',
+                    );
+                    
+                    // Create a new query to get the posts
+                    $archive_query = new WP_Query( $query_args );
+                    
+                    // Transfer results to main query
+                    $wp_query->posts = $archive_query->posts;
+                    $wp_query->post_count = $archive_query->post_count;
+                    $wp_query->found_posts = $archive_query->found_posts;
+                    $wp_query->max_num_pages = $archive_query->max_num_pages;
+                    $wp_query->query_vars = array_merge( $wp_query->query_vars, $query_args );
+                    
+                    wp_reset_postdata();
+                    
+                    break; // Found matching post type, no need to continue
+                }
+            }
+        }
+    }
+}
+add_action( 'template_redirect', 'gloceps_fix_cpt_archive_404', 1 );

@@ -31,7 +31,7 @@ while (have_posts()) : the_post();
     $tags = get_the_tags();
     
     // Get author info
-    $author_info = gloceps_get_publication_author();
+    $authors = gloceps_get_publication_authors();
     
     // Generate TOC
     $toc = gloceps_generate_publication_toc();
@@ -299,29 +299,41 @@ while (have_posts()) : the_post();
                         <?php endif; ?>
 
                         <!-- Author Bio -->
+                        <?php if ( ! empty( $authors ) ) : ?>
                         <div class="publication-author">
-                            <h3 class="publication-author__heading"><?php esc_html_e('About the Author', 'gloceps'); ?></h3>
-                            <div class="publication-author__card">
-                                <div class="publication-author__image">
-                                    <img src="<?php echo esc_url($author_info['image']); ?>" alt="<?php echo esc_attr($author_info['name']); ?>" />
-                                </div>
-                                <div class="publication-author__content">
-                                    <h4 class="publication-author__name"><?php echo esc_html($author_info['name']); ?></h4>
-                                    <?php if ($author_info['title']) : ?>
-                                    <p class="publication-author__role"><?php echo esc_html($author_info['title']); ?></p>
-                                    <?php endif; ?>
-                                    <?php if ($author_info['bio']) : ?>
-                                    <p class="publication-author__bio"><?php echo esc_html($author_info['bio']); ?></p>
-                                    <?php endif; ?>
-                                    <div class="publication-author__links">
-                                        <?php if ($author_info['type'] === 'team' && $author_info['link']) : ?>
-                                        <a href="<?php echo esc_url($author_info['link']); ?>" class="publication-author__link"><?php esc_html_e('View Profile', 'gloceps'); ?></a>
+                            <h3 class="publication-author__heading">
+                                <?php 
+                                echo count( $authors ) > 1 
+                                    ? esc_html__( 'About the Authors', 'gloceps' ) 
+                                    : esc_html__( 'About the Author', 'gloceps' ); 
+                                ?>
+                            </h3>
+                            <div class="publication-author__list">
+                                <?php foreach ( $authors as $author_info ) : ?>
+                                <div class="publication-author__card">
+                                    <div class="publication-author__image">
+                                        <img src="<?php echo esc_url($author_info['image']); ?>" alt="<?php echo esc_attr($author_info['name']); ?>" />
+                                    </div>
+                                    <div class="publication-author__content">
+                                        <h4 class="publication-author__name"><?php echo esc_html($author_info['name']); ?></h4>
+                                        <?php if ($author_info['title']) : ?>
+                                        <p class="publication-author__role"><?php echo esc_html($author_info['title']); ?></p>
                                         <?php endif; ?>
-                                        <a href="<?php echo esc_url(add_query_arg('author', sanitize_title($author_info['name']), get_post_type_archive_link('publication'))); ?>" class="publication-author__link"><?php esc_html_e('More Publications', 'gloceps'); ?></a>
+                                        <?php if ($author_info['bio']) : ?>
+                                        <p class="publication-author__bio"><?php echo esc_html($author_info['bio']); ?></p>
+                                        <?php endif; ?>
+                                        <div class="publication-author__links">
+                                            <?php if ($author_info['type'] === 'team' && $author_info['link']) : ?>
+                                            <a href="<?php echo esc_url($author_info['link']); ?>" class="publication-author__link"><?php esc_html_e('View Profile', 'gloceps'); ?></a>
+                                            <?php endif; ?>
+                                            <a href="<?php echo esc_url(add_query_arg('author', sanitize_title($author_info['name']), get_post_type_archive_link('publication'))); ?>" class="publication-author__link"><?php esc_html_e('More Publications', 'gloceps'); ?></a>
+                                        </div>
                                     </div>
                                 </div>
+                                <?php endforeach; ?>
                             </div>
                         </div>
+                        <?php endif; ?>
                     </div>
 
                     <!-- Sidebar -->

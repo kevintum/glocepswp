@@ -204,11 +204,13 @@ function gloceps_register_acf_fields() {
             ),
             array(
                 'key' => 'field_pub_team_member',
-                'label' => 'Select Team Member',
+                'label' => 'Select Team Member(s)',
                 'name' => 'team_member',
                 'type' => 'post_object',
                 'post_type' => array('team_member'),
                 'return_format' => 'object',
+                'multiple' => 1,
+                'instructions' => 'Select one or more team members as authors',
                 'conditional_logic' => array(
                     array(
                         array(
@@ -220,10 +222,13 @@ function gloceps_register_acf_fields() {
                 ),
             ),
             array(
-                'key' => 'field_pub_guest_author_name',
-                'label' => 'Guest Author Name',
-                'name' => 'guest_author_name',
-                'type' => 'text',
+                'key' => 'field_pub_guest_authors',
+                'label' => 'Guest Author(s)',
+                'name' => 'guest_authors',
+                'type' => 'repeater',
+                'layout' => 'block',
+                'button_label' => 'Add Guest Author',
+                'instructions' => 'Add one or more guest authors',
                 'conditional_logic' => array(
                     array(
                         array(
@@ -233,35 +238,35 @@ function gloceps_register_acf_fields() {
                         ),
                     ),
                 ),
-            ),
-            array(
-                'key' => 'field_pub_guest_author_title',
-                'label' => 'Guest Author Title',
-                'name' => 'guest_author_title',
-                'type' => 'text',
-                'conditional_logic' => array(
+                'sub_fields' => array(
                     array(
-                        array(
-                            'field' => 'field_pub_author_type',
-                            'operator' => '==',
-                            'value' => 'guest',
-                        ),
+                        'key' => 'field_pub_guest_author_name',
+                        'label' => 'Guest Author Name',
+                        'name' => 'name',
+                        'type' => 'text',
+                        'required' => 1,
                     ),
-                ),
-            ),
-            array(
-                'key' => 'field_pub_guest_author_bio',
-                'label' => 'Guest Author Bio',
-                'name' => 'guest_author_bio',
-                'type' => 'textarea',
-                'rows' => 4,
-                'conditional_logic' => array(
                     array(
-                        array(
-                            'field' => 'field_pub_author_type',
-                            'operator' => '==',
-                            'value' => 'guest',
-                        ),
+                        'key' => 'field_pub_guest_author_title',
+                        'label' => 'Guest Author Title',
+                        'name' => 'title',
+                        'type' => 'text',
+                    ),
+                    array(
+                        'key' => 'field_pub_guest_author_bio',
+                        'label' => 'Guest Author Bio',
+                        'name' => 'bio',
+                        'type' => 'textarea',
+                        'rows' => 4,
+                    ),
+                    array(
+                        'key' => 'field_pub_guest_author_image',
+                        'label' => 'Guest Author Image',
+                        'name' => 'image',
+                        'type' => 'image',
+                        'return_format' => 'array',
+                        'preview_size' => 'thumbnail',
+                        'library' => 'all',
                     ),
                 ),
             ),
@@ -725,6 +730,26 @@ function gloceps_register_acf_fields() {
                     ),
                 ),
             ),
+            
+            // Tab: Gallery
+            array(
+                'key' => 'field_event_tab_gallery',
+                'label' => 'Gallery',
+                'name' => '',
+                'type' => 'tab',
+                'placement' => 'top',
+            ),
+            array(
+                'key' => 'field_event_gallery',
+                'label' => 'Event Gallery',
+                'name' => 'gallery',
+                'type' => 'gallery',
+                'return_format' => 'array',
+                'preview_size' => 'medium',
+                'insert' => 'append',
+                'library' => 'all',
+                'instructions' => 'Add photos from the event. These will be displayed in a grid with thumbnail navigation below.',
+            ),
         ),
         'location' => array(
             array(
@@ -975,6 +1000,7 @@ function gloceps_register_acf_fields() {
                 'choices' => array(
                     'embed' => 'Embed from Platform (Spotify, Apple Podcasts, etc.)',
                     'upload' => 'Uploaded Audio File',
+                    'external' => 'External Link (Listen on External Platform)',
                 ),
                 'default_value' => 'embed',
                 'layout' => 'vertical',
@@ -994,6 +1020,23 @@ function gloceps_register_acf_fields() {
                         ),
                     ),
                 ),
+            ),
+            array(
+                'key' => 'field_podcast_external_url',
+                'label' => 'External Podcast URL',
+                'name' => 'podcast_external_url',
+                'type' => 'url',
+                'instructions' => 'Enter the URL where users can listen to this podcast on an external platform',
+                'conditional_logic' => array(
+                    array(
+                        array(
+                            'field' => 'field_podcast_source_type',
+                            'operator' => '==',
+                            'value' => 'external',
+                        ),
+                    ),
+                ),
+                'required' => 1,
             ),
             array(
                 'key' => 'field_podcast_audio_file',
@@ -1020,7 +1063,7 @@ function gloceps_register_acf_fields() {
                 'name' => 'episode_number',
                 'type' => 'number',
                 'instructions' => 'Enter the episode number (e.g., 24)',
-                'required' => 1,
+                'required' => 0,
                 'min' => 1,
             ),
             array(
@@ -1048,6 +1091,56 @@ function gloceps_register_acf_fields() {
                     'param' => 'post_type',
                     'operator' => '==',
                     'value' => 'podcast',
+                ),
+            ),
+        ),
+        'menu_order' => 0,
+        'position' => 'normal',
+        'style' => 'default',
+        'label_placement' => 'top',
+        'instruction_placement' => 'label',
+        'active' => true,
+        'description' => '',
+    ));
+
+    /**
+     * =========================================
+     * SPEECH FIELDS
+     * =========================================
+     */
+    acf_add_local_field_group(array(
+        'key' => 'group_speech_fields',
+        'title' => 'Speech Details',
+        'fields' => array(
+            array(
+                'key' => 'field_speech_date',
+                'label' => 'Speech Date',
+                'name' => 'speech_date',
+                'type' => 'date_picker',
+                'instructions' => 'Select the date when the speech was delivered',
+                'required' => 1,
+                'display_format' => 'F j, Y',
+                'return_format' => 'Y-m-d',
+                'first_day' => 1,
+            ),
+            array(
+                'key' => 'field_speech_file',
+                'label' => 'Speech File',
+                'name' => 'speech_file',
+                'type' => 'file',
+                'instructions' => 'Upload the downloadable speech file (PDF, DOC, DOCX, etc.)',
+                'required' => 1,
+                'return_format' => 'array',
+                'library' => 'all',
+                'mime_types' => 'pdf,doc,docx,txt',
+            ),
+        ),
+        'location' => array(
+            array(
+                array(
+                    'param' => 'post_type',
+                    'operator' => '==',
+                    'value' => 'speech',
                 ),
             ),
         ),
@@ -1134,6 +1227,50 @@ function gloceps_register_acf_fields() {
 
     /**
      * =========================================
+     * SPEECH ARCHIVE SETTINGS
+     * =========================================
+     */
+    acf_add_local_field_group(array(
+        'key' => 'group_speech_archive_options',
+        'title' => 'Speech Archive Settings',
+        'fields' => array(
+            array(
+                'key' => 'field_speech_intro_title',
+                'label' => 'Page Title',
+                'name' => 'speech_intro_title',
+                'type' => 'text',
+                'default_value' => 'Speeches',
+            ),
+            array(
+                'key' => 'field_speech_intro_description',
+                'label' => 'Page Description',
+                'name' => 'speech_intro_description',
+                'type' => 'textarea',
+                'rows' => 3,
+                'new_lines' => 'br',
+                'default_value' => 'Access speeches and statements delivered by GLOCEPS leadership and experts on key policy issues.',
+            ),
+        ),
+        'location' => array(
+            array(
+                array(
+                    'param' => 'options_page',
+                    'operator' => '==',
+                    'value' => 'theme-settings-speeches',
+                ),
+            ),
+        ),
+        'menu_order' => 0,
+        'position' => 'normal',
+        'style' => 'default',
+        'label_placement' => 'top',
+        'instruction_placement' => 'label',
+        'active' => true,
+        'description' => '',
+    ));
+
+    /**
+     * =========================================
      * ARTICLE FIELDS
      * =========================================
      */
@@ -1155,12 +1292,13 @@ function gloceps_register_acf_fields() {
             ),
             array(
                 'key' => 'field_article_team_member',
-                'label' => 'Team Member',
+                'label' => 'Team Member(s)',
                 'name' => 'team_member',
                 'type' => 'post_object',
-                'instructions' => 'Select a team member as the author',
+                'instructions' => 'Select one or more team members as authors',
                 'post_type' => array('team_member'),
                 'return_format' => 'object',
+                'multiple' => 1,
                 'conditional_logic' => array(
                     array(
                         array(
@@ -1172,10 +1310,13 @@ function gloceps_register_acf_fields() {
                 ),
             ),
             array(
-                'key' => 'field_article_guest_name',
-                'label' => 'Guest Author Name',
-                'name' => 'guest_author_name',
-                'type' => 'text',
+                'key' => 'field_article_guest_authors',
+                'label' => 'Guest Author(s)',
+                'name' => 'guest_authors',
+                'type' => 'repeater',
+                'layout' => 'block',
+                'button_label' => 'Add Guest Author',
+                'instructions' => 'Add one or more guest authors',
                 'conditional_logic' => array(
                     array(
                         array(
@@ -1185,39 +1326,37 @@ function gloceps_register_acf_fields() {
                         ),
                     ),
                 ),
-            ),
-            array(
-                'key' => 'field_article_guest_title',
-                'label' => 'Guest Author Title/Position',
-                'name' => 'guest_author_title',
-                'type' => 'text',
-                'placeholder' => 'Senior Research Fellow, GLOCEPS',
-                'conditional_logic' => array(
+                'sub_fields' => array(
                     array(
-                        array(
-                            'field' => 'field_article_author_type',
-                            'operator' => '==',
-                            'value' => 'guest',
-                        ),
+                        'key' => 'field_article_guest_name',
+                        'label' => 'Guest Author Name',
+                        'name' => 'name',
+                        'type' => 'text',
+                        'required' => 1,
                     ),
-                ),
-            ),
-            array(
-                'key' => 'field_article_guest_image',
-                'label' => 'Guest Author Image',
-                'name' => 'guest_author_image',
-                'type' => 'image',
-                'instructions' => 'Upload author photo. If not set, a placeholder will be used.',
-                'return_format' => 'array',
-                'preview_size' => 'thumbnail',
-                'library' => 'all',
-                'conditional_logic' => array(
                     array(
-                        array(
-                            'field' => 'field_article_author_type',
-                            'operator' => '==',
-                            'value' => 'guest',
-                        ),
+                        'key' => 'field_article_guest_title',
+                        'label' => 'Guest Author Title/Position',
+                        'name' => 'title',
+                        'type' => 'text',
+                        'placeholder' => 'Senior Research Fellow, GLOCEPS',
+                    ),
+                    array(
+                        'key' => 'field_article_guest_bio',
+                        'label' => 'Guest Author Bio',
+                        'name' => 'bio',
+                        'type' => 'textarea',
+                        'rows' => 4,
+                    ),
+                    array(
+                        'key' => 'field_article_guest_image',
+                        'label' => 'Guest Author Image',
+                        'name' => 'image',
+                        'type' => 'image',
+                        'instructions' => 'Upload author photo. If not set, a placeholder will be used.',
+                        'return_format' => 'array',
+                        'preview_size' => 'thumbnail',
+                        'library' => 'all',
                     ),
                 ),
             ),
@@ -1313,6 +1452,18 @@ function gloceps_register_acf_fields() {
                 'rows' => 3,
                 'new_lines' => 'br',
                 'default_value' => 'Explore our research papers, policy briefs, bulletins, and analysis on policy and strategy across Eastern Africa. Free resources and premium publications available.',
+            ),
+            array(
+                'key' => 'field_publications_per_page',
+                'label' => 'Publications Per Page',
+                'name' => 'publications_per_page',
+                'type' => 'number',
+                'instructions' => 'Number of publications to display per page on the archive page. Default is 12.',
+                'default_value' => 12,
+                'min' => 1,
+                'max' => 100,
+                'step' => 1,
+                'required' => 1,
             ),
             array(
                 'key' => 'field_publications_cta_title',
@@ -1660,6 +1811,62 @@ function gloceps_register_acf_fields() {
                         'ui' => 1,
                         'ajax' => 0,
                         'return_format' => 'value',
+                    ),
+                ),
+            ),
+            array(
+                'key' => 'field_text_truncation',
+                'label' => 'Text Truncation Settings',
+                'name' => 'text_truncation',
+                'type' => 'group',
+                'instructions' => 'Control how long titles and descriptions are displayed before being truncated with ellipsis.',
+                'sub_fields' => array(
+                    array(
+                        'key' => 'field_enable_truncation',
+                        'label' => 'Enable Text Truncation',
+                        'name' => 'enable_truncation',
+                        'type' => 'true_false',
+                        'default_value' => 1,
+                        'ui' => 1,
+                        'instructions' => 'When enabled, long titles and descriptions will be truncated with ellipsis. When disabled, full text will be shown.',
+                    ),
+                    array(
+                        'key' => 'field_title_word_limit',
+                        'label' => 'Title Word Limit',
+                        'name' => 'title_word_limit',
+                        'type' => 'number',
+                        'default_value' => 10,
+                        'min' => 3,
+                        'max' => 30,
+                        'instructions' => 'Maximum number of words for card titles before truncation (default: 10 words).',
+                        'conditional_logic' => array(
+                            array(
+                                array(
+                                    'field' => 'field_enable_truncation',
+                                    'operator' => '==',
+                                    'value' => '1',
+                                ),
+                            ),
+                        ),
+                    ),
+                    array(
+                        'key' => 'field_description_word_limit',
+                        'label' => 'Description Word Limit',
+                        'name' => 'description_word_limit',
+                        'type' => 'number',
+                        'default_value' => 20,
+                        'min' => 5,
+                        'max' => 50,
+                        'instructions' => 'Maximum number of words for descriptions/excerpts before truncation (default: 20 words).',
+                        'conditional_logic' => array(
+                            array(
+                                array(
+                                    'field' => 'field_enable_truncation',
+                                    'operator' => '==',
+                                    'value' => '1',
+                                ),
+                            ),
+                        ),
                     ),
                 ),
             ),
@@ -2115,6 +2322,14 @@ function gloceps_register_acf_fields() {
             'page_title'    => 'Publications Archive Settings',
             'menu_title'    => 'Publications Archive',
             'menu_slug'     => 'theme-settings-publications',
+            'parent_slug'   => 'theme-settings',
+        ));
+        
+        // Speeches Archive Settings
+        acf_add_options_sub_page(array(
+            'page_title'    => 'Speeches Archive Settings',
+            'menu_title'    => 'Speeches Archive',
+            'menu_slug'     => 'theme-settings-speeches',
             'parent_slug'   => 'theme-settings',
         ));
         
@@ -3397,6 +3612,18 @@ function gloceps_get_flexible_layouts() {
                     'rows' => 2,
                 ),
                 array(
+                    'key' => 'field_partners_layout',
+                    'label' => 'Layout',
+                    'name' => 'layout',
+                    'type' => 'select',
+                    'choices' => array(
+                        'grid' => 'Grid',
+                        'carousel' => 'Carousel',
+                    ),
+                    'default_value' => 'grid',
+                    'instructions' => 'Choose how to display the partner logos. Grid shows all logos in a grid layout. Carousel displays logos in a scrolling carousel (useful for many logos).',
+                ),
+                array(
                     'key' => 'field_partners_logos',
                     'label' => 'Partner Logos',
                     'name' => 'logos',
@@ -4243,13 +4470,64 @@ function gloceps_get_flexible_layouts() {
                     'default_value' => 'Opinion and analysis from our experts',
                 ),
                 array(
-                    'key' => 'field_latest_articles_count',
-                    'label' => 'Number to Show',
-                    'name' => 'count',
+                    'key' => 'field_latest_articles_layout',
+                    'label' => 'Layout',
+                    'name' => 'layout',
+                    'type' => 'select',
+                    'choices' => array(
+                        'grid' => 'Grid',
+                        'carousel' => 'Carousel',
+                    ),
+                    'default_value' => 'grid',
+                    'instructions' => 'Choose how to display articles. Grid shows articles in a paginated grid. Carousel displays articles in a scrolling carousel.',
+                ),
+                array(
+                    'key' => 'field_latest_articles_categories',
+                    'label' => 'Filter by Categories',
+                    'name' => 'categories',
+                    'type' => 'taxonomy',
+                    'taxonomy' => 'article_category',
+                    'field_type' => 'multi_select',
+                    'allow_null' => 1,
+                    'instructions' => 'Select specific article categories to filter. Leave empty to show all categories.',
+                ),
+                array(
+                    'key' => 'field_latest_articles_per_page',
+                    'label' => 'Articles Per Page (Grid)',
+                    'name' => 'per_page',
                     'type' => 'number',
-                    'default_value' => 3,
+                    'default_value' => 6,
                     'min' => 1,
-                    'max' => 6,
+                    'max' => 24,
+                    'instructions' => 'Number of articles to show per page when using grid layout.',
+                    'conditional_logic' => array(
+                        array(
+                            array(
+                                'field' => 'field_latest_articles_layout',
+                                'operator' => '==',
+                                'value' => 'grid',
+                            ),
+                        ),
+                    ),
+                ),
+                array(
+                    'key' => 'field_latest_articles_carousel_count',
+                    'label' => 'Number to Show (Carousel)',
+                    'name' => 'carousel_count',
+                    'type' => 'number',
+                    'default_value' => 6,
+                    'min' => 3,
+                    'max' => 12,
+                    'instructions' => 'Number of articles to show in carousel layout.',
+                    'conditional_logic' => array(
+                        array(
+                            array(
+                                'field' => 'field_latest_articles_layout',
+                                'operator' => '==',
+                                'value' => 'carousel',
+                            ),
+                        ),
+                    ),
                 ),
             ),
         ),

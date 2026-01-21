@@ -1347,6 +1347,17 @@
 
     // Handle overflow items
     if (itemsToMove.length > 0) {
+      // Close all open dropdowns in More menu before clearing
+      const existingItems = navMoreList.querySelectorAll('.nav__item--has-dropdown');
+      existingItems.forEach(existingItem => {
+        existingItem.classList.remove('nav__item--open');
+        const existingTimeouts = moreMenuTimeouts.get(existingItem);
+        if (existingTimeouts) {
+          if (existingTimeouts.showTimeout) clearTimeout(existingTimeouts.showTimeout);
+          if (existingTimeouts.hideTimeout) clearTimeout(existingTimeouts.hideTimeout);
+        }
+      });
+      
       // Clear More menu first
       navMoreList.innerHTML = '';
       
@@ -1454,6 +1465,151 @@
     }
   }
   
+  // ============================================
+  // More Menu Dropdown Handler (with event delegation)
+  // ============================================
+  // Store timeouts globally so they persist across re-initializations
+  const moreMenuTimeouts = new WeakMap();
+  let moreMenuInitialized = false;
+  
+  function initMoreMenuDropdowns() {
+    const moreDropdown = document.getElementById('navMoreList');
+    if (!moreDropdown) {
+      return;
+    }
+    
+    // Only attach event listeners once (event delegation works for dynamically added items)
+    if (moreMenuInitialized) {
+      return;
+    }
+    
+    moreMenuInitialized = true;
+    
+    // Use event delegation - query items dynamically each time
+    moreDropdown.addEventListener('mouseenter', function(e) {
+      const item = e.target.closest('.nav__item--has-dropdown');
+      if (!item || !moreDropdown.contains(item)) return;
+      
+      const dropdown = item.querySelector('.nav__dropdown');
+      if (!dropdown) return;
+      
+      // Get or create timeout object for this item
+      let timeouts = moreMenuTimeouts.get(item);
+      if (!timeouts) {
+        timeouts = { showTimeout: null, hideTimeout: null };
+        moreMenuTimeouts.set(item, timeouts);
+      }
+      
+      // Clear any pending hide timeout
+      if (timeouts.hideTimeout) {
+        clearTimeout(timeouts.hideTimeout);
+        timeouts.hideTimeout = null;
+      }
+      
+      // Close all other dropdowns in More menu (query dynamically)
+      const allMoreItems = moreDropdown.querySelectorAll('.nav__item--has-dropdown');
+      allMoreItems.forEach(otherItem => {
+        if (otherItem !== item) {
+          const otherTimeouts = moreMenuTimeouts.get(otherItem);
+          if (otherTimeouts) {
+            if (otherTimeouts.showTimeout) {
+              clearTimeout(otherTimeouts.showTimeout);
+              otherTimeouts.showTimeout = null;
+            }
+            if (otherTimeouts.hideTimeout) {
+              clearTimeout(otherTimeouts.hideTimeout);
+              otherTimeouts.hideTimeout = null;
+            }
+          }
+          otherItem.classList.remove('nav__item--open');
+        }
+      });
+      
+      // Show this dropdown after small delay
+      timeouts.showTimeout = setTimeout(() => {
+        item.classList.add('nav__item--open');
+        timeouts.showTimeout = null;
+      }, 50);
+    }, true);
+    
+    // Handle mouseleave on items
+    moreDropdown.addEventListener('mouseleave', function(e) {
+      const item = e.target.closest('.nav__item--has-dropdown');
+      if (!item || !moreDropdown.contains(item)) return;
+      
+      const dropdown = item.querySelector('.nav__dropdown');
+      if (!dropdown) return;
+      
+      // Check if mouse is moving to dropdown
+      const relatedTarget = e.relatedTarget;
+      if (relatedTarget && (dropdown.contains(relatedTarget) || relatedTarget === dropdown)) {
+        return; // Mouse is moving to dropdown, don't hide
+      }
+      
+      let timeouts = moreMenuTimeouts.get(item);
+      if (!timeouts) {
+        timeouts = { showTimeout: null, hideTimeout: null };
+        moreMenuTimeouts.set(item, timeouts);
+      }
+      
+      // Clear any pending show timeout
+      if (timeouts.showTimeout) {
+        clearTimeout(timeouts.showTimeout);
+        timeouts.showTimeout = null;
+      }
+      
+      // Set timeout to hide dropdown
+      timeouts.hideTimeout = setTimeout(() => {
+        item.classList.remove('nav__item--open');
+        timeouts.hideTimeout = null;
+      }, 200);
+    }, true);
+    
+    // Handle hover on dropdowns themselves (event delegation)
+    moreDropdown.addEventListener('mouseenter', function(e) {
+      const dropdown = e.target.closest('.nav__dropdown');
+      if (!dropdown || !moreDropdown.contains(dropdown)) return;
+      
+      const item = dropdown.closest('.nav__item--has-dropdown');
+      if (!item) return;
+      
+      let timeouts = moreMenuTimeouts.get(item);
+      if (!timeouts) {
+        timeouts = { showTimeout: null, hideTimeout: null };
+        moreMenuTimeouts.set(item, timeouts);
+      }
+      
+      if (timeouts.hideTimeout) {
+        clearTimeout(timeouts.hideTimeout);
+        timeouts.hideTimeout = null;
+      }
+      if (timeouts.showTimeout) {
+        clearTimeout(timeouts.showTimeout);
+        timeouts.showTimeout = null;
+      }
+      item.classList.add('nav__item--open');
+    }, true);
+    
+    moreDropdown.addEventListener('mouseleave', function(e) {
+      const dropdown = e.target.closest('.nav__dropdown');
+      if (!dropdown || !moreDropdown.contains(dropdown)) return;
+      
+      const item = dropdown.closest('.nav__item--has-dropdown');
+      if (!item) return;
+      
+      let timeouts = moreMenuTimeouts.get(item);
+      if (!timeouts) {
+        timeouts = { showTimeout: null, hideTimeout: null };
+        moreMenuTimeouts.set(item, timeouts);
+      }
+      
+      timeouts.hideTimeout = setTimeout(() => {
+        item.classList.remove('nav__item--open');
+        timeouts.hideTimeout = null;
+      }, 200);
+    }, true);
+  }
+  
   document.addEventListener('DOMContentLoaded', function() {
     // Wait a bit for handleNavOverflow to run
     setTimeout(ensureDropdownVisibility, 500);
@@ -1462,36 +1618,617 @@
       setTimeout(ensureDropdownVisibility, 200);
     });
     
-    const moreDropdown = document.getElementById('navMoreList');
-    if (moreDropdown) {
-      // Handle hover for submenus in More dropdown
-      moreDropdown.addEventListener('mouseenter', function(e) {
-        const item = e.target.closest('.nav__item--has-dropdown');
-        if (item) {
-          item.classList.add('nav__item--open');
-        }
-      }, true);
+    // Initialize More menu dropdowns after a delay to ensure items are cloned
+    setTimeout(() => {
+      initMoreMenuDropdowns();
+    }, 600);
+    
+    // Re-initialize after handleNavOverflow runs (on resize or initial load)
+    // Hook into handleNavOverflow by wrapping it
+    const originalHandleNavOverflow = window.handleNavOverflow || handleNavOverflow;
+    window.handleNavOverflow = function() {
+      originalHandleNavOverflow();
+      // Re-initialize dropdown handlers after items are cloned
+      setTimeout(() => {
+        initMoreMenuDropdowns();
+      }, 100);
+    };
+  });
 
-      moreDropdown.addEventListener('mouseleave', function(e) {
-        const item = e.target.closest('.nav__item--has-dropdown');
-        if (item && !item.contains(e.relatedTarget)) {
-          item.classList.remove('nav__item--open');
+  // ============================================
+  // Partners Carousel
+  // ============================================
+  const initPartnersCarousel = () => {
+    const partnersCarousels = document.querySelectorAll('[data-partners-carousel]');
+    
+    partnersCarousels.forEach((carousel) => {
+      const wrapper = carousel.closest('.partners-carousel-wrapper');
+      const track = carousel.querySelector('.partners-carousel__track');
+      const slides = carousel.querySelectorAll('.partners-carousel__slide');
+      const prevBtn = wrapper ? wrapper.querySelector('.partners-carousel__btn--prev') : null;
+      const nextBtn = wrapper ? wrapper.querySelector('.partners-carousel__btn--next') : null;
+      
+      if (!track || !slides.length) return;
+      
+      let currentIndex = 0;
+      let slidesToShow = 6;
+      let isAnimating = false;
+      
+      // Calculate slides to show based on viewport width
+      const updateSlidesToShow = () => {
+        const width = window.innerWidth;
+        if (width <= 480) {
+          slidesToShow = 2;
+        } else if (width <= 768) {
+          slidesToShow = 3;
+        } else if (width <= 1024) {
+          slidesToShow = 4;
+        } else {
+          slidesToShow = 6;
         }
-      }, true);
-
-      // Handle click for submenu toggle in More dropdown
-      moreDropdown.addEventListener('click', function(e) {
-        const link = e.target.closest('.nav__link');
-        if (link) {
-          const item = link.closest('.nav__item--has-dropdown');
-          if (item) {
-            e.preventDefault();
-            e.stopPropagation();
-            item.classList.toggle('nav__item--open');
+      };
+      
+      updateSlidesToShow();
+      window.addEventListener('resize', () => {
+        updateSlidesToShow();
+        updateCarousel();
+      });
+      
+      const updateCarousel = (force = false) => {
+        if (!slides[0]) return;
+        
+        // Only skip if animating and not forced (for resize events)
+        if (isAnimating && !force) return;
+        
+        const slideWidth = slides[0].offsetWidth;
+        const gap = parseInt(getComputedStyle(track).gap) || 24;
+        const translateX = -(currentIndex * (slideWidth + gap));
+        
+        track.style.transform = `translateX(${translateX}px)`;
+        
+        // Update button states
+        if (prevBtn) {
+          prevBtn.disabled = currentIndex === 0;
+        }
+        if (nextBtn) {
+          const maxIndex = Math.max(0, slides.length - slidesToShow);
+          nextBtn.disabled = currentIndex >= maxIndex;
+        }
+      };
+      
+      if (prevBtn) {
+        prevBtn.addEventListener('click', (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          
+          if (currentIndex > 0 && !isAnimating) {
+            currentIndex--;
+            updateCarousel(true);
+            isAnimating = true;
+            setTimeout(() => {
+              isAnimating = false;
+            }, 500);
           }
+        });
+      }
+      
+      if (nextBtn) {
+        nextBtn.addEventListener('click', (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          
+          const maxIndex = Math.max(0, slides.length - slidesToShow);
+          if (currentIndex < maxIndex && !isAnimating) {
+            currentIndex++;
+            updateCarousel(true);
+            isAnimating = true;
+            setTimeout(() => {
+              isAnimating = false;
+            }, 500);
+          }
+        });
+      }
+      
+      // Initialize after a short delay to ensure DOM is ready
+      setTimeout(() => {
+        updateCarousel();
+      }, 100);
+    });
+  };
+  
+  // Initialize on DOM ready
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initPartnersCarousel);
+  } else {
+    initPartnersCarousel();
+  }
+  
+  // Also initialize after reveal animations (if using reveal library)
+  if (typeof window !== 'undefined' && window.addEventListener) {
+    window.addEventListener('load', () => {
+      setTimeout(initPartnersCarousel, 500);
+    });
+  }
+
+  // ============================================
+  // Articles Carousel (reuses partners carousel logic)
+  // ============================================
+  const initArticlesCarousel = () => {
+    const articlesCarousels = document.querySelectorAll('[data-articles-carousel]');
+    
+    articlesCarousels.forEach((carousel) => {
+      const wrapper = carousel.closest('.articles-carousel-wrapper');
+      const track = carousel.querySelector('.articles-carousel__track');
+      const slides = carousel.querySelectorAll('.articles-carousel__slide');
+      const prevBtn = wrapper ? wrapper.querySelector('.articles-carousel__btn--prev') : null;
+      const nextBtn = wrapper ? wrapper.querySelector('.articles-carousel__btn--next') : null;
+      
+      if (!track || !slides.length) return;
+      
+      let currentIndex = 0;
+      let slidesToShow = 3;
+      let isAnimating = false;
+      
+      // Calculate slides to show based on viewport width
+      const updateSlidesToShow = () => {
+        const width = window.innerWidth;
+        if (width <= 480) {
+          slidesToShow = 1;
+        } else if (width <= 768) {
+          slidesToShow = 2;
+        } else {
+          slidesToShow = 3;
         }
+      };
+      
+      updateSlidesToShow();
+      window.addEventListener('resize', () => {
+        updateSlidesToShow();
+        updateCarousel();
+      });
+      
+      const updateCarousel = (force = false) => {
+        if (!slides[0]) return;
+        
+        // Only skip if animating and not forced (for resize events)
+        if (isAnimating && !force) return;
+        
+        const slideWidth = slides[0].offsetWidth;
+        const gap = parseInt(getComputedStyle(track).gap) || 24;
+        const translateX = -(currentIndex * (slideWidth + gap));
+        
+        track.style.transform = `translateX(${translateX}px)`;
+        
+        // Update button states
+        if (prevBtn) {
+          prevBtn.disabled = currentIndex === 0;
+        }
+        if (nextBtn) {
+          const maxIndex = Math.max(0, slides.length - slidesToShow);
+          nextBtn.disabled = currentIndex >= maxIndex;
+        }
+      };
+      
+      if (prevBtn) {
+        prevBtn.addEventListener('click', (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          
+          if (currentIndex > 0 && !isAnimating) {
+            currentIndex--;
+            updateCarousel(true);
+            isAnimating = true;
+            setTimeout(() => {
+              isAnimating = false;
+            }, 500);
+          }
+        });
+      }
+      
+      if (nextBtn) {
+        nextBtn.addEventListener('click', (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          
+          const maxIndex = Math.max(0, slides.length - slidesToShow);
+          if (currentIndex < maxIndex && !isAnimating) {
+            currentIndex++;
+            updateCarousel(true);
+            isAnimating = true;
+            setTimeout(() => {
+              isAnimating = false;
+            }, 500);
+          }
+        });
+      }
+      
+      // Initialize after a short delay to ensure DOM is ready
+      setTimeout(() => {
+        updateCarousel();
+      }, 100);
+    });
+  };
+  
+  // Initialize on DOM ready
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initArticlesCarousel);
+  } else {
+    initArticlesCarousel();
+  }
+  
+  // Also initialize after reveal animations
+  if (typeof window !== 'undefined' && window.addEventListener) {
+    window.addEventListener('load', () => {
+      setTimeout(initArticlesCarousel, 500);
+    });
+  }
+
+  // ============================================
+  // Event Gallery Thumbnail Navigation
+  // ============================================
+  const initEventGallery = () => {
+    const galleries = document.querySelectorAll('[data-event-gallery]');
+    
+    galleries.forEach((gallery) => {
+      const thumbnailsWrapper = gallery.closest('.event-gallery').querySelector('.event-gallery__thumbnails-wrapper');
+      if (!thumbnailsWrapper) return;
+      
+      const thumbnails = thumbnailsWrapper.querySelector('[data-event-gallery-thumbnails]');
+      const thumbTrack = thumbnails ? thumbnails.querySelector('.event-gallery__thumbnails-track') : null;
+      const thumbBtns = thumbnailsWrapper.querySelectorAll('.event-gallery__thumb');
+      const prevBtn = thumbnailsWrapper.querySelector('.event-gallery__thumb-btn--prev');
+      const nextBtn = thumbnailsWrapper.querySelector('.event-gallery__thumb-btn--next');
+      
+      if (!thumbTrack || !thumbBtns.length) return;
+      
+      let currentIndex = 0;
+      let thumbsToShow = 8;
+      let isAnimating = false;
+      
+      // Calculate thumbs to show based on viewport width
+      const updateThumbsToShow = () => {
+        const width = window.innerWidth;
+        if (width <= 480) {
+          thumbsToShow = 4;
+        } else if (width <= 768) {
+          thumbsToShow = 6;
+        } else {
+          thumbsToShow = 8;
+        }
+      };
+      
+      updateThumbsToShow();
+      window.addEventListener('resize', () => {
+        updateThumbsToShow();
+        updateThumbnails();
+      });
+      
+      const updateThumbnails = (force = false) => {
+        if (isAnimating && !force) return;
+        
+        const thumbWidth = thumbBtns[0].offsetWidth;
+        const gap = parseInt(getComputedStyle(thumbTrack).gap) || 8;
+        const translateX = -(currentIndex * (thumbWidth + gap));
+        
+        thumbTrack.style.transform = `translateX(${translateX}px)`;
+        
+        // Update button states
+        if (prevBtn) {
+          prevBtn.disabled = currentIndex === 0;
+        }
+        if (nextBtn) {
+          const maxIndex = Math.max(0, thumbBtns.length - thumbsToShow);
+          nextBtn.disabled = currentIndex >= maxIndex;
+        }
+      };
+      
+      // Handle thumbnail clicks - open lightbox at that image
+      thumbBtns.forEach((btn, index) => {
+        btn.addEventListener('click', () => {
+          // Remove active class from all thumbs
+          thumbBtns.forEach(t => t.classList.remove('active'));
+          // Add active class to clicked thumb
+          btn.classList.add('active');
+          
+          // Open lightbox at this image
+          const galleryLink = gallery.querySelector(`[data-event-gallery-image][data-image-index="${index}"]`);
+          if (galleryLink) {
+            galleryLink.click();
+          } else {
+            // Fallback: scroll to corresponding image in grid
+            const galleryItem = gallery.querySelector(`[data-gallery-index="${index}"]`);
+            if (galleryItem) {
+              galleryItem.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }
+          }
+        });
+      });
+      
+      // Set first thumb as active
+      if (thumbBtns[0]) {
+        thumbBtns[0].classList.add('active');
+      }
+      
+      if (prevBtn) {
+        prevBtn.addEventListener('click', (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          
+          if (currentIndex > 0 && !isAnimating) {
+            currentIndex--;
+            updateThumbnails(true);
+            isAnimating = true;
+            setTimeout(() => {
+              isAnimating = false;
+            }, 300);
+          }
+        });
+      }
+      
+      if (nextBtn) {
+        nextBtn.addEventListener('click', (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          
+          const maxIndex = Math.max(0, thumbBtns.length - thumbsToShow);
+          if (currentIndex < maxIndex && !isAnimating) {
+            currentIndex++;
+            updateThumbnails(true);
+            isAnimating = true;
+            setTimeout(() => {
+              isAnimating = false;
+            }, 300);
+          }
+        });
+      }
+      
+      // Initialize
+      setTimeout(() => {
+        updateThumbnails();
+      }, 100);
+    });
+  };
+  
+  // Initialize on DOM ready
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initEventGallery);
+  } else {
+    initEventGallery();
+  }
+  
+  // Also initialize after reveal animations
+  if (typeof window !== 'undefined' && window.addEventListener) {
+    window.addEventListener('load', () => {
+      setTimeout(initEventGallery, 500);
+    });
+  }
+
+  // ============================================
+  // Event Gallery Lightbox
+  // ============================================
+  const initEventGalleryLightbox = () => {
+    const lightbox = document.getElementById('lightbox');
+    if (!lightbox) return;
+    
+    const lightboxImage = lightbox.querySelector('.lightbox__image');
+    const lightboxCaption = lightbox.querySelector('.lightbox__caption');
+    const lightboxCounter = lightbox.querySelector('.lightbox__counter');
+    const closeBtn = lightbox.querySelector('.lightbox__close');
+    const prevBtn = lightbox.querySelector('.lightbox__nav--prev');
+    const nextBtn = lightbox.querySelector('.lightbox__nav--next');
+    
+    if (!lightboxImage) return;
+    
+    let currentGallery = null;
+    let currentIndex = 0;
+    let images = [];
+    
+    function openLightbox(galleryElement, index) {
+      const galleryItems = galleryElement.querySelectorAll('[data-event-gallery-image]');
+      if (!galleryItems.length) return;
+      
+      images = Array.from(galleryItems).map(item => ({
+        url: item.getAttribute('data-image-url') || item.href,
+        caption: item.getAttribute('data-image-caption') || '',
+        alt: item.getAttribute('data-image-alt') || ''
+      }));
+      
+      currentGallery = galleryElement;
+      currentIndex = parseInt(index) || 0;
+      
+      updateLightbox();
+      lightbox.classList.add('lightbox--open');
+      document.body.style.overflow = 'hidden';
+    }
+    
+    function closeLightbox() {
+      lightbox.classList.remove('lightbox--open');
+      document.body.style.overflow = '';
+      currentGallery = null;
+      images = [];
+    }
+    
+    function updateLightbox() {
+      if (images.length === 0 || currentIndex < 0 || currentIndex >= images.length) return;
+      
+      const image = images[currentIndex];
+      lightboxImage.src = image.url;
+      lightboxImage.alt = image.alt;
+      
+      if (lightboxCaption) {
+        lightboxCaption.textContent = image.caption || '';
+      }
+      
+      if (lightboxCounter) {
+        lightboxCounter.textContent = (currentIndex + 1) + ' / ' + images.length;
+      }
+      
+      // Update navigation button states
+      if (prevBtn) {
+        prevBtn.disabled = currentIndex === 0;
+      }
+      if (nextBtn) {
+        nextBtn.disabled = currentIndex === images.length - 1;
+      }
+      
+      // Update active thumbnail
+      if (currentGallery) {
+        const allThumbs = currentGallery.closest('.event-gallery').querySelectorAll('.event-gallery__thumb');
+        allThumbs.forEach((thumb, index) => {
+          if (index === currentIndex) {
+            thumb.classList.add('active');
+          } else {
+            thumb.classList.remove('active');
+          }
+        });
+      }
+    }
+    
+    function showPrev() {
+      if (currentIndex > 0) {
+        currentIndex--;
+        updateLightbox();
+      }
+    }
+    
+    function showNext() {
+      if (currentIndex < images.length - 1) {
+        currentIndex++;
+        updateLightbox();
+      }
+    }
+    
+    // Handle gallery image clicks
+    document.addEventListener('click', (e) => {
+      const galleryLink = e.target.closest('[data-event-gallery-image]');
+      if (galleryLink) {
+        e.preventDefault();
+        const galleryElement = galleryLink.closest('[data-event-gallery]');
+        const index = galleryLink.getAttribute('data-image-index');
+        if (galleryElement) {
+          openLightbox(galleryElement, index);
+        }
+      }
+    });
+    
+    // Close lightbox
+    if (closeBtn) {
+      closeBtn.addEventListener('click', closeLightbox);
+    }
+    
+    // Close on background click
+    lightbox.addEventListener('click', (e) => {
+      if (e.target === lightbox) {
+        closeLightbox();
+      }
+    });
+    
+    // Navigation
+    if (prevBtn) {
+      prevBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        showPrev();
       });
     }
-  });
+    
+    if (nextBtn) {
+      nextBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        showNext();
+      });
+    }
+    
+    // Keyboard navigation
+    document.addEventListener('keydown', (e) => {
+      if (!lightbox.classList.contains('lightbox--open')) return;
+      
+      if (e.key === 'Escape') {
+        closeLightbox();
+      } else if (e.key === 'ArrowLeft') {
+        showPrev();
+      } else if (e.key === 'ArrowRight') {
+        showNext();
+      }
+    });
+  };
+  
+  // Initialize on DOM ready
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initEventGalleryLightbox);
+  } else {
+    initEventGalleryLightbox();
+  }
+  
+  // Also initialize after reveal animations
+  if (typeof window !== 'undefined' && window.addEventListener) {
+    window.addEventListener('load', () => {
+      setTimeout(initEventGalleryLightbox, 500);
+    });
+  }
+
+  // ============================================
+  // Navigation Dropdown Hover Delay
+  // Improves UX by preventing dropdown from closing when moving mouse to it
+  // ============================================
+  function initNavDropdownHover() {
+    const navItems = document.querySelectorAll('.nav__item--has-dropdown:not(.nav__more .nav__item)');
+    
+    navItems.forEach(item => {
+      let hideTimeout = null;
+      const dropdown = item.querySelector('.nav__dropdown');
+      
+      if (!dropdown) return;
+      
+      // Show dropdown on hover
+      item.addEventListener('mouseenter', () => {
+        // Clear any pending hide timeout
+        if (hideTimeout) {
+          clearTimeout(hideTimeout);
+          hideTimeout = null;
+        }
+        // Show dropdown immediately
+        item.classList.add('nav__item--dropdown-open');
+      });
+      
+      // Hide dropdown with delay on mouse leave
+      item.addEventListener('mouseleave', (e) => {
+        // Check if mouse is moving to dropdown
+        const relatedTarget = e.relatedTarget;
+        if (relatedTarget && (dropdown.contains(relatedTarget) || relatedTarget === dropdown)) {
+          return; // Mouse is moving to dropdown, don't hide
+        }
+        
+        // Set timeout to hide dropdown (200ms delay)
+        hideTimeout = setTimeout(() => {
+          item.classList.remove('nav__item--dropdown-open');
+          hideTimeout = null;
+        }, 200);
+      });
+      
+      // Keep dropdown open when hovering over it
+      dropdown.addEventListener('mouseenter', () => {
+        if (hideTimeout) {
+          clearTimeout(hideTimeout);
+          hideTimeout = null;
+        }
+        item.classList.add('nav__item--dropdown-open');
+      });
+      
+      // Hide dropdown when leaving dropdown
+      dropdown.addEventListener('mouseleave', () => {
+        hideTimeout = setTimeout(() => {
+          item.classList.remove('nav__item--dropdown-open');
+          hideTimeout = null;
+        }, 200);
+      });
+    });
+  }
+  
+  // Initialize dropdown hover delay
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initNavDropdownHover);
+  } else {
+    initNavDropdownHover();
+  }
 
 })();

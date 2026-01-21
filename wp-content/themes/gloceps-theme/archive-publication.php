@@ -12,6 +12,7 @@ get_header();
 // Get ACF settings for publications archive
 $publications_title = get_field('publications_intro_title', 'option') ?: 'Publications';
 $publications_description = get_field('publications_intro_description', 'option') ?: 'Explore our research papers, policy briefs, bulletins, and analysis on policy and strategy across Eastern Africa. Free resources and premium publications available.';
+$publications_per_page = absint(get_field('publications_per_page', 'option')) ?: 12;
 
 // Get filter parameters from URL
 $filter_type = isset($_GET['type']) ? array_map('sanitize_text_field', (array)$_GET['type']) : array();
@@ -22,7 +23,8 @@ $filter_format = isset($_GET['format']) ? array_map('sanitize_text_field', (arra
 $search_query = isset($_GET['s']) ? sanitize_text_field($_GET['s']) : '';
 $sort_by = isset($_GET['sort']) ? sanitize_text_field($_GET['sort']) : 'newest';
 $view_mode = isset($_GET['view']) ? sanitize_text_field($_GET['view']) : 'grid';
-$paged = (get_query_var('paged')) ? get_query_var('paged') : 1;
+// Get paged from query var or GET parameter (for custom post type archives)
+$paged = max(1, get_query_var('paged') ?: (isset($_GET['paged']) ? absint($_GET['paged']) : 1));
 
 // Get all taxonomies for filters
 $publication_types = get_terms(array(
@@ -58,7 +60,7 @@ wp_reset_postdata();
 // Build query args
 $query_args = array(
     'post_type' => 'publication',
-    'posts_per_page' => 12,
+    'posts_per_page' => $publications_per_page,
     'paged' => $paged,
 );
 
@@ -446,8 +448,8 @@ $publications_query = new WP_Query($query_args);
                     <div class="publications-results reveal">
                         <?php
                         $total = $publications_query->found_posts;
-                        $start = ($paged - 1) * 12 + 1;
-                        $end = min($paged * 12, $total);
+                        $start = ($paged - 1) * $publications_per_page + 1;
+                        $end = min($paged * $publications_per_page, $total);
                         ?>
                         <p class="publications-results__count">
                             <?php
@@ -479,31 +481,84 @@ $publications_query = new WP_Query($query_args);
                     $total_pages = $publications_query->max_num_pages;
                     if ($total_pages > 1) :
                         $current_page = max(1, $paged);
-                        $base_url = remove_query_arg('paged');
-                        // Preserve all filter parameters
-                        $base_url = add_query_arg(array(
-                            's' => $search_query,
-                            'sort' => $sort_by,
-                            'view' => $view_mode,
-                        ), $base_url);
+                        
+                        // Build base URL from archive permalink
+                        $base_url = get_post_type_archive_link('publication');
+                        
+                        // Build query args array for all filters
+                        $query_args = array();
+                        
+                        // Add search
+                        if ($search_query) {
+                            $query_args['s'] = $search_query;
+                        }
+                        
+                        // Add sort
+                        if ($sort_by && $sort_by !== 'newest') {
+                            $query_args['sort'] = $sort_by;
+                        }
+                        
+                        // Add view mode
+                        if ($view_mode && $view_mode !== 'grid') {
+                            $query_args['view'] = $view_mode;
+                        }
+                        
+                        // Add filters
                         if (!empty($filter_type)) {
-                            $base_url = add_query_arg('type', $filter_type, $base_url);
+                            $query_args['type'] = $filter_type;
                         }
                         if (!empty($filter_pillar)) {
-                            $base_url = add_query_arg('pillar', $filter_pillar, $base_url);
+                            $query_args['pillar'] = $filter_pillar;
                         }
                         if (!empty($filter_access)) {
-                            $base_url = add_query_arg('access', $filter_access, $base_url);
+                            $query_args['access'] = $filter_access;
                         }
                         if (!empty($filter_year)) {
-                            $base_url = add_query_arg('year', $filter_year, $base_url);
+                            $query_args['year'] = $filter_year;
                         }
                         if (!empty($filter_format)) {
-                            $base_url = add_query_arg('format', $filter_format, $base_url);
+                            $query_args['format'] = $filter_format;
                         }
+                        
+                        // Helper function to build pagination URL with filters
+                        $get_page_url = function($page_num) use ($base_url, $query_args) {
+                            global $wp_rewrite;
+                            
+                            // Build URL based on permalink structure
+                            if ($wp_rewrite->using_permalinks()) {
+                                // Using pretty permalinks: /publications/page/2/
+                                if ($page_num == 1) {
+                                    $page_url = trailingslashit($base_url);
+                                } else {
+                                    $page_url = trailingslashit($base_url) . $wp_rewrite->pagination_base . '/' . $page_num . '/';
+                                }
+                            } else {
+                                // Using query strings: /publications/?paged=2
+                                if ($page_num == 1) {
+                                    $page_url = $base_url;
+                                } else {
+                                    $page_url = add_query_arg('paged', $page_num, $base_url);
+                                }
+                            }
+                            
+                            // Add filter query args
+                            if (!empty($query_args)) {
+                                $page_url = add_query_arg($query_args, $page_url);
+                            }
+                            
+                            return $page_url;
+                        };
                     ?>
                     <div class="pagination">
-                        <a href="<?php echo esc_url($current_page > 1 ? add_query_arg('paged', $current_page - 1, $base_url) : '#'); ?>"
+                        <?php
+                        // Previous page URL
+                        if ($current_page > 1) {
+                            $prev_url = $get_page_url($current_page - 1);
+                        } else {
+                            $prev_url = '#';
+                        }
+                        ?>
+                        <a href="<?php echo esc_url($prev_url); ?>"
                            class="pagination__btn pagination__btn--prev"
                            <?php if ($current_page <= 1) : ?>disabled style="pointer-events: none; opacity: 0.5;"<?php endif; ?>>
                             <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -517,8 +572,9 @@ $publications_query = new WP_Query($query_args);
                             for ($i = 1; $i <= $total_pages; $i++) :
                                 if ($i == 1 || $i == $total_pages || ($i >= $current_page - 1 && $i <= $current_page + 1)) :
                                     $prev_ellipsis = false;
+                                    $page_url = $get_page_url($i);
                             ?>
-                                <a href="<?php echo esc_url(add_query_arg('paged', $i, $base_url)); ?>"
+                                <a href="<?php echo esc_url($page_url); ?>"
                                    class="pagination__page <?php echo $i == $current_page ? 'pagination__page--active' : ''; ?>">
                                     <?php echo esc_html($i); ?>
                                 </a>
@@ -532,7 +588,15 @@ $publications_query = new WP_Query($query_args);
                             endfor;
                             ?>
                         </div>
-                        <a href="<?php echo esc_url($current_page < $total_pages ? add_query_arg('paged', $current_page + 1, $base_url) : '#'); ?>"
+                        <?php
+                        // Next page URL
+                        if ($current_page < $total_pages) {
+                            $next_url = $get_page_url($current_page + 1);
+                        } else {
+                            $next_url = '#';
+                        }
+                        ?>
+                        <a href="<?php echo esc_url($next_url); ?>"
                            class="pagination__btn pagination__btn--next"
                            <?php if ($current_page >= $total_pages) : ?>disabled style="pointer-events: none; opacity: 0.5;"<?php endif; ?>>
                             <?php esc_html_e('Next', 'gloceps'); ?>

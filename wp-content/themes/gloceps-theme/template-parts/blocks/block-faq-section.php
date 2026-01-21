@@ -38,7 +38,7 @@ $faqs = get_sub_field('faqs');
                     if (!$question) continue;
                 ?>
                     <div class="faq-item">
-                        <h3 class="faq-item__question"><?php echo esc_html($question); ?></h3>
+                        <h4 class="faq-item__question"><?php echo esc_html($question); ?></h4>
                         <div class="faq-item__answer"><?php echo wp_kses_post($answer); ?></div>
                     </div>
                 <?php endforeach; ?>

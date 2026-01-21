@@ -814,51 +814,238 @@ function gloceps_generate_publication_toc( $post_id = null ) {
 }
 
 /**
- * Get publication author information
- * Returns author info based on author_type (team or guest)
+ * Get publication authors information
+ * Returns array of author information (name, title, bio, image) based on author type (team or guest)
+ * Supports multiple authors
  * 
  * @param int $post_id Publication post ID
- * @return array Author information array
+ * @return array Array of author information arrays
  */
-function gloceps_get_publication_author( $post_id = null ) {
+function gloceps_get_publication_authors( $post_id = null ) {
     if ( ! $post_id ) {
         $post_id = get_the_ID();
     }
     
     $author_type = get_field( 'author_type', $post_id ) ?: 'team';
-    $author_info = array(
-        'type'  => $author_type,
-        'name'  => '',
-        'title' => '',
-        'bio'   => '',
-        'image' => '',
-        'link'  => '',
-    );
+    $authors = array();
     
     if ( $author_type === 'team' ) {
-        $team_member = get_field( 'team_member', $post_id );
-        if ( $team_member && is_object( $team_member ) ) {
-            $author_info['name'] = get_the_title( $team_member->ID );
-            $author_info['title'] = get_field( 'job_title', $team_member->ID ) ?: '';
-            $author_info['bio'] = get_field( 'bio', $team_member->ID ) ?: '';
-            $author_info['image'] = get_the_post_thumbnail_url( $team_member->ID, 'thumbnail' ) ?: gloceps_get_favicon_url( 80 );
-            $author_info['link'] = get_post_type_archive_link( 'team_member' );
+        $team_members = get_field( 'team_member', $post_id );
+        
+        // Handle both single object (backward compatibility) and array
+        if ( ! $team_members ) {
+            return $authors;
+        }
+        
+        // Convert single object to array for consistent processing
+        if ( is_object( $team_members ) ) {
+            $team_members = array( $team_members );
+        }
+        
+        // Ensure it's an array
+        if ( ! is_array( $team_members ) ) {
+            return $authors;
+        }
+        
+        foreach ( $team_members as $team_member ) {
+            if ( is_object( $team_member ) && isset( $team_member->ID ) ) {
+                $author_info = array(
+                    'type'  => 'team',
+                    'name'  => get_the_title( $team_member->ID ),
+                    'title' => get_field( 'job_title', $team_member->ID ) ?: '',
+                    'bio'   => get_field( 'bio', $team_member->ID ) ?: '',
+                    'image' => get_the_post_thumbnail_url( $team_member->ID, 'thumbnail' ) ?: gloceps_get_favicon_url( 80 ),
+                    'link'  => get_post_type_archive_link( 'team_member' ),
+                );
+                $authors[] = $author_info;
+            }
         }
     } else {
-        // Guest author
-        $author_info['name'] = get_field( 'guest_author_name', $post_id ) ?: get_the_author();
-        $author_info['title'] = get_field( 'guest_author_title', $post_id ) ?: '';
-        $author_info['bio'] = get_field( 'guest_author_bio', $post_id ) ?: '';
-        $guest_image = get_field( 'guest_author_image', $post_id );
-        if ( $guest_image && is_array( $guest_image ) ) {
-            $author_info['image'] = $guest_image['url'] ?? ( $guest_image['sizes']['thumbnail'] ?? '' );
+        // Guest authors (repeater field)
+        $guest_authors = get_field( 'guest_authors', $post_id );
+        
+        if ( $guest_authors && is_array( $guest_authors ) ) {
+            foreach ( $guest_authors as $guest ) {
+                if ( ! empty( $guest['name'] ) ) {
+                    $author_info = array(
+                        'type'  => 'guest',
+                        'name'  => $guest['name'],
+                        'title' => $guest['title'] ?? '',
+                        'bio'   => $guest['bio'] ?? '',
+                        'image' => '',
+                        'link'  => '',
+                    );
+                    
+                    // Handle guest image
+                    if ( ! empty( $guest['image'] ) && is_array( $guest['image'] ) ) {
+                        $author_info['image'] = $guest['image']['url'] ?? ( $guest['image']['sizes']['thumbnail'] ?? '' );
+                    }
+                    
+                    if ( ! $author_info['image'] ) {
+                        $author_info['image'] = gloceps_get_favicon_url( 80 );
+                    }
+                    
+                    $authors[] = $author_info;
+                }
+            }
         }
-        if ( ! $author_info['image'] ) {
-            $author_info['image'] = gloceps_get_favicon_url( 80 );
+        
+        // Backward compatibility: if no repeater data, try old single fields
+        if ( empty( $authors ) ) {
+            $guest_name = get_field( 'guest_author_name', $post_id );
+            if ( $guest_name ) {
+                $author_info = array(
+                    'type'  => 'guest',
+                    'name'  => $guest_name ?: get_the_author(),
+                    'title' => get_field( 'guest_author_title', $post_id ) ?: '',
+                    'bio'   => get_field( 'guest_author_bio', $post_id ) ?: '',
+                    'image' => '',
+                    'link'  => '',
+                );
+                
+                $guest_image = get_field( 'guest_author_image', $post_id );
+                if ( $guest_image && is_array( $guest_image ) ) {
+                    $author_info['image'] = $guest_image['url'] ?? ( $guest_image['sizes']['thumbnail'] ?? '' );
+                }
+                if ( ! $author_info['image'] ) {
+                    $author_info['image'] = gloceps_get_favicon_url( 80 );
+                }
+                
+                $authors[] = $author_info;
+            }
         }
     }
     
-    return $author_info;
+    return $authors;
+}
+
+/**
+ * Get publication author information (backward compatibility)
+ * Returns first author for backward compatibility
+ * 
+ * @param int $post_id Publication post ID
+ * @return array Author information array
+ */
+function gloceps_get_publication_author( $post_id = null ) {
+    $authors = gloceps_get_publication_authors( $post_id );
+    if ( ! empty( $authors ) ) {
+        return $authors[0];
+    }
+    
+    // Fallback
+    return array(
+        'type'  => 'team',
+        'name'  => get_the_author(),
+        'title' => '',
+        'bio'   => '',
+        'image' => gloceps_get_favicon_url( 80 ),
+        'link'  => '',
+    );
+}
+
+/**
+ * Get article authors information
+ * Returns array of author information for articles (similar to publications)
+ * 
+ * @param int $post_id Article post ID
+ * @return array Array of author information arrays
+ */
+function gloceps_get_article_authors( $post_id = null ) {
+    if ( ! $post_id ) {
+        $post_id = get_the_ID();
+    }
+    
+    $author_type = get_field( 'author_type', $post_id ) ?: 'team';
+    $authors = array();
+    
+    if ( $author_type === 'team' ) {
+        $team_members = get_field( 'team_member', $post_id );
+        
+        // Handle both single object (backward compatibility) and array
+        if ( ! $team_members ) {
+            return $authors;
+        }
+        
+        // Convert single object to array for consistent processing
+        if ( is_object( $team_members ) ) {
+            $team_members = array( $team_members );
+        }
+        
+        // Ensure it's an array
+        if ( ! is_array( $team_members ) ) {
+            return $authors;
+        }
+        
+        foreach ( $team_members as $team_member ) {
+            if ( is_object( $team_member ) && isset( $team_member->ID ) ) {
+                $author_info = array(
+                    'type'  => 'team',
+                    'name'  => get_the_title( $team_member->ID ),
+                    'title' => get_field( 'job_title', $team_member->ID ) ?: '',
+                    'bio'   => get_field( 'bio', $team_member->ID ) ?: '',
+                    'image' => get_the_post_thumbnail_url( $team_member->ID, 'thumbnail' ) ?: gloceps_get_favicon_url( 80 ),
+                    'link'  => get_post_type_archive_link( 'team_member' ),
+                );
+                $authors[] = $author_info;
+            }
+        }
+    } else {
+        // Guest authors (repeater field)
+        $guest_authors = get_field( 'guest_authors', $post_id );
+        
+        if ( $guest_authors && is_array( $guest_authors ) ) {
+            foreach ( $guest_authors as $guest ) {
+                if ( ! empty( $guest['name'] ) ) {
+                    $author_info = array(
+                        'type'  => 'guest',
+                        'name'  => $guest['name'],
+                        'title' => $guest['title'] ?? '',
+                        'bio'   => $guest['bio'] ?? '',
+                        'image' => '',
+                        'link'  => '',
+                    );
+                    
+                    // Handle guest image
+                    if ( ! empty( $guest['image'] ) && is_array( $guest['image'] ) ) {
+                        $author_info['image'] = $guest['image']['url'] ?? ( $guest['image']['sizes']['thumbnail'] ?? '' );
+                    }
+                    
+                    if ( ! $author_info['image'] ) {
+                        $author_info['image'] = gloceps_get_favicon_url( 80 );
+                    }
+                    
+                    $authors[] = $author_info;
+                }
+            }
+        }
+        
+        // Backward compatibility: if no repeater data, try old single fields
+        if ( empty( $authors ) ) {
+            $guest_name = get_field( 'guest_author_name', $post_id );
+            if ( $guest_name ) {
+                $author_info = array(
+                    'type'  => 'guest',
+                    'name'  => $guest_name ?: get_the_author(),
+                    'title' => get_field( 'guest_author_title', $post_id ) ?: '',
+                    'bio'   => '',
+                    'image' => '',
+                    'link'  => '',
+                );
+                
+                $guest_image = get_field( 'guest_author_image', $post_id );
+                if ( $guest_image && is_array( $guest_image ) ) {
+                    $author_info['image'] = $guest_image['url'] ?? ( $guest_image['sizes']['thumbnail'] ?? '' );
+                }
+                if ( ! $author_info['image'] ) {
+                    $author_info['image'] = gloceps_get_favicon_url( 80 );
+                }
+                
+                $authors[] = $author_info;
+            }
+        }
+    }
+    
+    return $authors;
 }
 
 /**

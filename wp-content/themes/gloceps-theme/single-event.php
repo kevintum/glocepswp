@@ -86,6 +86,12 @@ while ( have_posts() ) :
                         include get_template_directory() . '/template-parts/events/event-speakers.php';
                     }
                     
+                    // Include gallery section
+                    $gallery = get_field('gallery');
+                    if ($gallery && !empty($gallery)) {
+                        include get_template_directory() . '/template-parts/events/event-gallery.php';
+                    }
+                    
                     // Include agenda section
                     if ($agenda) {
                         include get_template_directory() . '/template-parts/events/event-agenda.php';

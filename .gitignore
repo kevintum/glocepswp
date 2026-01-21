@@ -1,18 +1,124 @@
-# WordPress Configuration
-# This file contains sensitive database credentials and should not be committed
+# ============================================
+# WordPress Core Files (Keep in repo)
+# ============================================
+# Note: WordPress core files are kept for version control
+# Only exclude environment-specific and generated files
+
+# ============================================
+# Environment-Specific Configuration
+# ============================================
+# Database credentials - must be configured per environment
 wp-config.php
+wp-config-staging.php
+wp-config-production.php
+wp-config-local.php
 
-# WordPress Debug Log
+# Server configuration - environment-specific
+.htaccess
+.htpasswd
+web.config
+
+# ============================================
+# WordPress Generated & Cache Files
+# ============================================
+# Debug logs
 wp-content/debug.log
+*.log
 
-# WordPress Upgrade
+# Upgrade folder (temporary WordPress updates)
 wp-content/upgrade/
 
-# WordPress Cache
+# Cache directories
 wp-content/cache/
+wp-content/wp-cache-config.php
 
-# WordPress Backups
+# Backups (should not be in version control)
 wp-content/backups-dup-lite/
+*.sql
+*.sql.gz
+*.zip
+*.tar.gz
 
-# Local Development Files
+# ============================================
+# Media & Uploads (Environment-Specific)
+# ============================================
+# User-uploaded media files - these are environment-specific
+wp-content/uploads/
+# But keep the directory structure
+!wp-content/uploads/index.php
+!wp-content/uploads/.gitkeep
+
+# ============================================
+# Third-Party Plugins (Exclude All)
+# ============================================
+# Exclude all plugins - they should be installed via Composer or manually
+wp-content/plugins/
+# But keep the directory structure
+!wp-content/plugins/index.php
+!wp-content/plugins/.gitkeep
+
+# ============================================
+# Default WordPress Themes (Exclude)
+# ============================================
+# Exclude default WordPress themes - not needed in version control
+wp-content/themes/twenty*/
+wp-content/themes/index.php
+
+# Keep custom theme
+!wp-content/themes/gloceps-theme/
+
+# ============================================
+# Must-Use Plugins (Keep Custom, Exclude Third-Party)
+# ============================================
+# Keep custom mu-plugins, but you can exclude third-party ones if needed
+# wp-content/mu-plugins/third-party-plugin/
+
+# ============================================
+# Development & Build Files
+# ============================================
+# Local development files
 local-xdebuginfo.php
+test-*.php
+
+# Node modules (if using build tools)
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# Composer vendor (if using Composer for dependencies)
+# Uncomment if you use Composer for plugins
+# vendor/
+
+# Build artifacts
+dist/
+build/
+*.min.js
+*.min.css
+
+# IDE and Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# ============================================
+# Temporary & System Files
+# ============================================
+# OS files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Desktop.ini
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+*.backup
+*~

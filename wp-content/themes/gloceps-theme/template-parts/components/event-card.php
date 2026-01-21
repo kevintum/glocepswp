@@ -36,8 +36,8 @@ if (!$featured_image) {
     <a href="<?php echo esc_url(get_permalink($event_id)); ?>" class="event-card__image">
         <?php if ($featured_image) : ?>
             <img src="<?php echo esc_url($featured_image); ?>" 
-                 alt="<?php echo esc_attr(get_the_title($event_id)); ?>" 
-                 class="<?php echo $is_placeholder ? 'event-card__image--placeholder-icon' : ''; ?>" />
+                 alt="<?php echo esc_attr(get_the_title($event_id)); ?>"
+                 <?php echo $is_placeholder ? 'class="is-placeholder"' : ''; ?> />
         <?php endif; ?>
         <span class="event-card__status event-card__status--<?php echo esc_attr($event_status); ?>">
             <?php echo $event_status === 'upcoming' ? esc_html__('Upcoming', 'gloceps') : esc_html__('Past Event', 'gloceps'); ?>
@@ -54,7 +54,7 @@ if (!$featured_image) {
                 </time>
             <?php endif; ?>
         </div>
-        <h3 class="event-card__title">
+        <h4 class="event-card__title">
             <a href="<?php echo esc_url(get_permalink($event_id)); ?>">
                 <?php echo esc_html(get_the_title($event_id)); ?>
             </a>

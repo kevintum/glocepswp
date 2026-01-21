@@ -255,8 +255,15 @@ $podcast_categories = get_terms(array(
         function openModal(card) {
             const podcastType = card.dataset.podcastType;
             const podcastUrl = card.dataset.podcastUrl || '';
+            const podcastExternalUrl = card.dataset.podcastExternalUrl || '';
             const podcastFile = card.dataset.podcastFile || '';
             const podcastTitle = card.dataset.podcastTitle || '';
+            
+            // If external link, open in new tab instead of modal
+            if (podcastType === 'external' && podcastExternalUrl) {
+                window.open(podcastExternalUrl, '_blank', 'noopener,noreferrer');
+                return;
+            }
             
             modalTitle.textContent = podcastTitle;
             modalPlayer.innerHTML = ''; // Clear previous content
@@ -302,6 +309,18 @@ $podcast_categories = get_terms(array(
         
         podcastCards.forEach(card => {
             card.addEventListener('click', function(e) {
+                // If clicking on an external link, let it navigate naturally
+                const link = e.target.closest('.podcast-card__link');
+                if (link && link.getAttribute('href') !== '#') {
+                    return; // Let the link handle navigation
+                }
+                
+                // If it's an external podcast type, don't open modal
+                const podcastType = card.dataset.podcastType;
+                if (podcastType === 'external') {
+                    return;
+                }
+                
                 e.preventDefault();
                 openModal(this);
             });

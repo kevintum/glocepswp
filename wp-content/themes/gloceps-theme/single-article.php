@@ -13,12 +13,10 @@ while (have_posts()) :
     the_post();
     
     // Get ACF fields
-    $author_type = get_field('author_type') ?: 'team';
-    $team_member = get_field('team_member');
-    $guest_name = get_field('guest_author_name');
-    $guest_title = get_field('guest_author_title');
-    $guest_image = get_field('guest_author_image');
     $read_time = get_field('read_time') ?: 5;
+    
+    // Get authors (supports multiple)
+    $authors = gloceps_get_article_authors();
     
     // Get category
     $categories = get_the_terms(get_the_ID(), 'article_category');
@@ -27,27 +25,13 @@ while (have_posts()) :
     // Format date
     $date_display = date('F j, Y', strtotime(get_the_date('c')));
     
-    // Get author info based on type
-    $author_name = '';
-    $author_title = '';
-    $author_image = '';
-    
-    if ($author_type === 'team' && $team_member) {
-        $author_name = get_the_title($team_member->ID);
-        $author_title = get_field('job_title', $team_member->ID);
-        $author_image = get_the_post_thumbnail_url($team_member->ID, 'thumbnail');
-    } elseif ($author_type === 'guest') {
-        $author_name = $guest_name ?: get_the_author();
-        $author_title = $guest_title;
-        if ($guest_image && is_array($guest_image)) {
-            $author_image = $guest_image['url'] ?? ($guest_image['sizes']['thumbnail'] ?? '');
-        }
-    }
-    
-    // Fallback for author image
-    if (!$author_image) {
-        $author_image = gloceps_get_favicon_url(80);
-    }
+    // Get first author for header display (backward compatibility)
+    $first_author = !empty($authors) ? $authors[0] : array(
+        'name' => get_the_author(),
+        'title' => '',
+        'image' => gloceps_get_favicon_url(80),
+        'type' => 'team'
+    );
     
     // Get tags
     $tags = get_the_tags();
@@ -161,16 +145,22 @@ while (have_posts()) :
                     <!-- Sidebar -->
                     <aside class="article-single__sidebar">
                         <!-- Author Card -->
-                        <div class="article-single__author-card">
-                            <img src="<?php echo esc_url($author_image); ?>" alt="<?php echo esc_attr($author_name); ?>" />
-                            <h3><?php echo esc_html($author_name); ?></h3>
-                            <?php if ($author_title) : ?>
-                            <p><?php echo esc_html($author_title); ?></p>
-                            <?php endif; ?>
-                            <?php if ($author_type === 'team') : ?>
-                            <a href="<?php echo esc_url(get_post_type_archive_link('team_member')); ?>" class="btn btn--secondary btn--sm"><?php esc_html_e('View Profile', 'gloceps'); ?></a>
-                            <?php endif; ?>
+                        <?php if (!empty($authors)) : ?>
+                        <div class="article-single__authors">
+                            <?php foreach ($authors as $author) : ?>
+                            <div class="article-single__author-card">
+                                <img src="<?php echo esc_url($author['image']); ?>" alt="<?php echo esc_attr($author['name']); ?>" />
+                                <h3><?php echo esc_html($author['name']); ?></h3>
+                                <?php if ($author['title']) : ?>
+                                <p><?php echo esc_html($author['title']); ?></p>
+                                <?php endif; ?>
+                                <?php if ($author['type'] === 'team' && $author['link']) : ?>
+                                <a href="<?php echo esc_url($author['link']); ?>" class="btn btn--secondary btn--sm"><?php esc_html_e('View Profile', 'gloceps'); ?></a>
+                                <?php endif; ?>
+                            </div>
+                            <?php endforeach; ?>
                         </div>
+                        <?php endif; ?>
 
                         <!-- Related Articles -->
                         <?php if ($related_articles->have_posts()) : ?>
