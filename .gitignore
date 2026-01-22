@@ -79,7 +79,7 @@ local-xdebuginfo.php
 test-*.php
 
 # Node modules (if using build tools)
-node_modules/
+#node_modules/
 npm-debug.log
 yarn-error.log
 
@@ -88,10 +88,10 @@ yarn-error.log
 # vendor/
 
 # Build artifacts
-dist/
-build/
-*.min.js
-*.min.css
+#dist/
+#build/
+#*.min.js
+#*.min.css
 
 # IDE and Editor files
 .vscode/

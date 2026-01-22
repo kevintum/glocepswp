@@ -5,43 +5,12 @@
 (function($) {
     'use strict';
 
-    // #region agent log
-    function logDebug(message, data) {
-        var logData = {
-            location: 'admin-acf.js',
-            message: message,
-            data: data || {},
-            timestamp: Date.now(),
-            sessionId: 'debug-session',
-            runId: 'run1',
-            hypothesisId: 'A'
-        };
-        fetch('http://127.0.0.1:7242/ingest/09ec82c7-ebc5-4630-a97b-1172a388b9cc', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(logData)
-        }).catch(function() {});
-    }
-    // #endregion
-
     /**
      * Initialize ACF Flexible Content enhancements
      */
     function initACFEnhancements() {
-        // #region agent log
-        logDebug('initACFEnhancements called', {
-            acf_defined: typeof acf !== 'undefined',
-            jquery_defined: typeof jQuery !== 'undefined',
-            flexible_content_count: $('.acf-flexible-content').length,
-            layout_count: $('.acf-fc-layout').length
-        });
-        // #endregion
-
         // Wait for ACF to be ready
         if (typeof acf === 'undefined') {
-            // #region agent log
-            logDebug('ACF not defined, returning early');
-            // #endregion
             return;
         }
 
@@ -75,15 +44,6 @@
                 var $handle = $layout.find('.acf-fc-layout-handle');
                 var $title = $handle.find('.acf-fc-layout-title, strong');
                 
-                // #region agent log
-                logDebug('Collapse clicked, checking title', {
-                    layout_found: $layout.length > 0,
-                    handle_found: $handle.length > 0,
-                    title_found: $title.length > 0,
-                    title_text: $title.length > 0 ? $title.text() : 'none'
-                });
-                // #endregion
-                
                 if ($title.length === 0 || !$title.text().trim()) {
                     // Ensure title exists before ACF tries to use it
                     var layoutName = $layout.data('layout') || $layout.attr('data-layout') || $layout.find('input[data-name="acf_fc_layout"]').val() || 'Layout';
@@ -103,23 +63,8 @@
         function addMoveControls() {
             // Look for layouts in multiple possible locations
             var $layouts = $('.acf-fc-layout, [data-layout]');
-            
-            // #region agent log
-            logDebug('addMoveControls called', { 
-                layout_count: $layouts.length,
-                flexible_content_count: $('.acf-flexible-content').length,
-                value_count: $('.acf-flexible-content .value').length
-            });
-            // #endregion
 
             if ($layouts.length === 0) {
-                // #region agent log
-                logDebug('No layouts found, checking DOM structure', {
-                    acf_fields: $('.acf-field').length,
-                    acf_flexible: $('.acf-field-flexible-content').length,
-                    all_acf_elements: $('[class*="acf"]').length
-                });
-                // #endregion
                 return;
             }
 
@@ -139,16 +84,6 @@
                     var $header = $layout.find('.acf-fc-layout-handle');
                     var $actionWrap = $layout.find('.acf-fc-layout-action');
                     
-                    // #region agent log
-                    logDebug('Adding move controls to layout', {
-                        has_controls_wrap: $controlsWrap.length > 0,
-                        has_header: $header.length > 0,
-                        has_action_wrap: $actionWrap.length > 0,
-                        layout_classes: $layout.attr('class'),
-                        layout_html: $layout.html().substring(0, 200)
-                    });
-                    // #endregion
-                    
                     // Ensure controls are inside the layout element
                     if ($controlsWrap.length) {
                         $controlsWrap.prepend($controls);
@@ -161,21 +96,8 @@
                         // Last resort: prepend to layout itself
                         $layout.prepend($controls);
                     }
-                    
-                    // #region agent log
-                    logDebug('Controls inserted', {
-                        controls_in_layout: $layout.find('.acf-fc-move-controls').length > 0,
-                        controls_parent: $controls.parent().attr('class'),
-                        layout_contains_controls: $layout[0].contains($controls[0])
-                    });
-                    // #endregion
                 }
             });
-            
-            // #region agent log
-            var controlsAdded = $('.acf-fc-move-controls').length;
-            logDebug('addMoveControls completed', { controls_added: controlsAdded });
-            // #endregion
         }
 
         // Move block up - simplified approach
@@ -186,19 +108,7 @@
             
             var $button = $(this);
             
-            // #region agent log
-            logDebug('Move up clicked', {
-                button_element: $button[0] ? 'found' : 'not found',
-                button_parent: $button.parent().attr('class'),
-                button_closest_layout: $button.closest('.acf-fc-layout').length,
-                button_parents: $button.parents().map(function() { return $(this).attr('class'); }).get().slice(0, 5)
-            });
-            // #endregion
-            
             if ($button.prop('disabled')) {
-                // #region agent log
-                logDebug('Move up button disabled');
-                // #endregion
                 return false;
             }
             
@@ -213,18 +123,7 @@
                 $layout = $button.closest('.acf-fc-layout-handle').closest('.acf-fc-layout');
             }
             
-            // #region agent log
-            logDebug('Layout search result', {
-                layout_found: $layout.length > 0,
-                layout_class: $layout.attr('class'),
-                layout_data: $layout.data('layout') || $layout.attr('data-layout')
-            });
-            // #endregion
-            
             if ($layout.length === 0) {
-                // #region agent log
-                logDebug('Layout not found for move up after all attempts');
-                // #endregion
                 return false;
             }
             
@@ -232,24 +131,9 @@
             // Find previous sibling - use .layout selector (not .acf-fc-layout)
             var $prev = $layout.prev('.layout');
             
-            // #region agent log
-            logDebug('Move up action', {
-                layout_found: $layout.length > 0,
-                container_found: $container.length > 0,
-                prev_found: $prev.length > 0,
-                container_class: $container.attr('class'),
-                layout_index: $container.find('.layout').index($layout),
-                all_layouts_in_container: $container.find('.layout').length
-            });
-            // #endregion
-            
             if ($prev.length) {
                 // Simply move the DOM element
                 $layout.insertBefore($prev);
-                
-                // #region agent log
-                logDebug('DOM moved, triggering ACF update');
-                // #endregion
                 
                 // Trigger ACF to recognize the change
                 var $field = $layout.closest('.acf-field-flexible-content');
@@ -265,10 +149,6 @@
                 }
                 
                 updateButtonStates();
-                
-                // #region agent log
-                logDebug('Layout moved up successfully');
-                // #endregion
             }
             
             return false;
@@ -282,19 +162,7 @@
             
             var $button = $(this);
             
-            // #region agent log
-            logDebug('Move down clicked', {
-                button_element: $button[0] ? 'found' : 'not found',
-                button_parent: $button.parent().attr('class'),
-                button_closest_layout: $button.closest('.acf-fc-layout').length,
-                button_parents: $button.parents().map(function() { return $(this).attr('class'); }).get().slice(0, 5)
-            });
-            // #endregion
-            
             if ($button.prop('disabled')) {
-                // #region agent log
-                logDebug('Move down button disabled');
-                // #endregion
                 return false;
             }
             
@@ -309,18 +177,7 @@
                 $layout = $button.closest('.acf-fc-layout-handle').closest('.acf-fc-layout');
             }
             
-            // #region agent log
-            logDebug('Layout search result', {
-                layout_found: $layout.length > 0,
-                layout_class: $layout.attr('class'),
-                layout_data: $layout.data('layout') || $layout.attr('data-layout')
-            });
-            // #endregion
-            
             if ($layout.length === 0) {
-                // #region agent log
-                logDebug('Layout not found for move down after all attempts');
-                // #endregion
                 return false;
             }
             
@@ -328,24 +185,9 @@
             // Find next sibling - use .layout selector (not .acf-fc-layout)
             var $next = $layout.next('.layout');
             
-            // #region agent log
-            logDebug('Move down action', {
-                layout_found: $layout.length > 0,
-                container_found: $container.length > 0,
-                next_found: $next.length > 0,
-                container_class: $container.attr('class'),
-                layout_index: $container.find('.layout').index($layout),
-                all_layouts_in_container: $container.find('.layout').length
-            });
-            // #endregion
-            
             if ($next.length) {
                 // Simply move the DOM element
                 $layout.insertAfter($next);
-                
-                // #region agent log
-                logDebug('DOM moved, triggering ACF update');
-                // #endregion
                 
                 // Trigger ACF to recognize the change
                 var $field = $layout.closest('.acf-field-flexible-content');
@@ -361,10 +203,6 @@
                 }
                 
                 updateButtonStates();
-                
-                // #region agent log
-                logDebug('Layout moved down successfully');
-                // #endregion
             }
             
             return false;
@@ -376,9 +214,6 @@
             // In block editor, layouts might be directly in .acf-flexible-content or in a .value container
             var $layouts = $('.acf-fc-layout');
             if ($layouts.length === 0) {
-                // #region agent log
-                logDebug('No layouts found for sortable');
-                // #endregion
                 return;
             }
             
@@ -395,29 +230,13 @@
                     break;
                 }
             }
-            
-            // #region agent log
-            logDebug('initSortable called', {
-                container_found: $container.length > 0,
-                container_class: $container.attr('class'),
-                layout_count: $container.find('.acf-fc-layout').length,
-                is_sortable: $container.hasClass('ui-sortable'),
-                container_html_preview: $container[0] ? $container[0].outerHTML.substring(0, 150) : 'none'
-            });
-            // #endregion
 
             if ($container.length === 0) {
-                // #region agent log
-                logDebug('No sortable container found');
-                // #endregion
                 return;
             }
             
             // Check if already sortable
             if ($container.hasClass('ui-sortable')) {
-                // #region agent log
-                logDebug('Container already sortable, checking if working');
-                // #endregion
                 // Re-enable if disabled
                 if (!$container.sortable('option', 'disabled')) {
                     return;
@@ -426,18 +245,8 @@
             
             var $layouts = $container.find('.acf-fc-layout');
             if ($layouts.length === 0) {
-                // #region agent log
-                logDebug('No layouts found in container');
-                // #endregion
                 return;
             }
-            
-            // #region agent log
-            logDebug('Initializing sortable on container', {
-                container_class: $container.attr('class'),
-                layout_count: $layouts.length
-            });
-            // #endregion
 
             // Destroy any existing sortable first
             if ($container.data('ui-sortable')) {
@@ -455,9 +264,6 @@
                 forcePlaceholderSize: true,
                 start: function(e, ui) {
                     ui.placeholder.height(ui.item.height());
-                    // #region agent log
-                    logDebug('Sortable drag started');
-                    // #endregion
                 },
                 update: function(e, ui) {
                     // Trigger ACF refresh after sort
@@ -466,14 +272,9 @@
                         acf.do_action('refresh', $field);
                     }
                     updateButtonStates();
-                    // #region agent log
-                    logDebug('Sortable order updated');
-                    // #endregion
                 },
                 stop: function(e, ui) {
-                    // #region agent log
-                    logDebug('Sortable drag stopped');
-                    // #endregion
+                    // Sortable drag stopped
                 }
             });
         }
@@ -493,14 +294,6 @@
 
         // Add controls when layouts are added - wait for layouts to actually exist
         $(document).on('acf/setup_fields', function(e, $el) {
-            // #region agent log
-            var layoutCount = $el.find('.acf-fc-layout').length;
-            logDebug('acf/setup_fields fired', {
-                layout_count_in_el: layoutCount,
-                total_layout_count: $('.acf-fc-layout').length
-            });
-            // #endregion
-
             // Wait a bit for ACF to fully render
             setTimeout(function() {
                 addMoveControls();
@@ -512,12 +305,6 @@
         // Initial setup - wait longer for ACF to load
         $(document).ready(function() {
             setTimeout(function() {
-                // #region agent log
-                logDebug('Initial setup timeout', {
-                    layout_count: $('.acf-fc-layout').length,
-                    flexible_content_count: $('.acf-flexible-content').length
-                });
-                // #endregion
                 addMoveControls();
                 initSortable();
                 updateButtonStates();
@@ -527,11 +314,6 @@
         // Re-initialize when new layouts are added
         $(document).on('click', '.acf-button[data-name="add-layout"], .acf-fc-layout-handle', function() {
             setTimeout(function() {
-                // #region agent log
-                logDebug('Layout added/clicked, re-initializing', {
-                    layout_count: $('.acf-fc-layout').length
-                });
-                // #endregion
                 addMoveControls();
                 initSortable();
                 updateButtonStates();
@@ -541,29 +323,9 @@
 
     // Initialize when DOM is ready
     $(document).ready(function() {
-        // #region agent log
-        var $body = $('body');
-        logDebug('Document ready', {
-            acf_defined: typeof acf !== 'undefined',
-            jquery_ui_sortable: typeof $.fn.sortable !== 'undefined',
-            flexible_content_count: $('.acf-flexible-content').length,
-            layout_count: $('.acf-fc-layout').length,
-            is_block_editor: typeof wp !== 'undefined' && wp.domReady !== 'undefined',
-            body_classes: $body.attr('class'),
-            has_metaboxes: $('#poststuff, .edit-post-meta-boxes-area').length > 0,
-            all_acf_elements: $('[class*="acf"]').length
-        });
-        // #endregion
-
         // Function to try initialization
         function tryInit() {
             if (typeof acf !== 'undefined') {
-                // #region agent log
-                logDebug('ACF found, initializing enhancements', {
-                    layout_count_now: $('.acf-fc-layout').length,
-                    flexible_content_count_now: $('.acf-flexible-content').length
-                });
-                // #endregion
                 initACFEnhancements();
                 return true;
             }
@@ -576,14 +338,7 @@
             var attempts = [100, 300, 500, 1000, 2000];
             attempts.forEach(function(delay) {
                 setTimeout(function() {
-                    if (!tryInit()) {
-                        // #region agent log
-                        logDebug('Retry after delay ' + delay + 'ms', { 
-                            acf_defined: typeof acf !== 'undefined',
-                            layout_count: $('.acf-fc-layout').length
-                        });
-                        // #endregion
-                    }
+                    tryInit();
                 }, delay);
             });
         }
@@ -591,18 +346,12 @@
 
     // Also listen for ACF ready event
     $(document).on('acf/ready acf/setup_fields', function() {
-        // #region agent log
-        logDebug('ACF event fired', { event_type: arguments[0].type });
-        // #endregion
         initACFEnhancements();
     });
 
     // For block editor, also listen to WordPress events
     if (typeof wp !== 'undefined' && wp.domReady) {
         wp.domReady(function() {
-            // #region agent log
-            logDebug('WordPress domReady fired');
-            // #endregion
             setTimeout(function() {
                 if (typeof acf !== 'undefined') {
                     initACFEnhancements();
