@@ -251,19 +251,52 @@ while (have_posts()) : the_post();
                         <?php endif; ?>
 
                         <!-- PDF Embed (Auto-inserted if PDF exists and publication is FREE) -->
-                        <?php if ($access_type === 'free' && $publication_format === 'pdf' && $pdf_file && is_array($pdf_file) && !empty($pdf_file['url'])) : ?>
+                        <?php if ($access_type === 'free' && $publication_format === 'pdf' && $pdf_file && is_array($pdf_file) && !empty($pdf_file['url'])) : 
+                            // Fix PDF URL to use ngrok domain if accessed via ngrok
+                            $pdf_url_raw = $pdf_file['url'];
+                            if (isset($_SERVER['HTTP_HOST']) && strpos($_SERVER['HTTP_HOST'], 'ngrok') !== false) {
+                                $ngrok_host = $_SERVER['HTTP_HOST'];
+                                $parsed_pdf = parse_url($pdf_url_raw);
+                                if ($parsed_pdf && isset($parsed_pdf['host'])) {
+                                    $pdf_url_raw = str_replace($parsed_pdf['host'], $ngrok_host, $pdf_url_raw);
+                                    $pdf_url_raw = str_replace('http://', 'https://', $pdf_url_raw);
+                                }
+                            }
+                            $pdf_url = esc_url($pdf_url_raw);
+                            $pdf_url_encoded = urlencode($pdf_url_raw);
+                            $pdf_title = esc_attr(get_the_title());
+                            // Google Docs Viewer for mobile compatibility (fallback)
+                            $google_viewer_url = 'https://docs.google.com/viewer?url=' . $pdf_url_encoded . '&embedded=true';
+                        ?>
                         <div class="publication-pdf-embed">
+                            <!-- Desktop: Direct PDF iframe -->
                             <iframe 
-                                src="<?php echo esc_url($pdf_file['url']); ?>#toolbar=1&navpanes=1&scrollbar=1" 
+                                class="publication-pdf-embed__iframe"
+                                src="<?php echo $pdf_url; ?>#toolbar=1&navpanes=1&scrollbar=1" 
                                 width="100%" 
                                 height="800" 
                                 style="border: 1px solid var(--color-gray-200); border-radius: var(--radius-lg);"
-                                title="<?php echo esc_attr(get_the_title()); ?> PDF">
+                                title="<?php echo $pdf_title; ?> PDF"
+                                allow="fullscreen">
                                 <p><?php esc_html_e('Your browser does not support PDFs.', 'gloceps'); ?> 
-                                <a href="<?php echo esc_url($pdf_file['url']); ?>" target="_blank" rel="noopener">
+                                <a href="<?php echo $pdf_url; ?>" target="_blank" rel="noopener">
                                     <?php esc_html_e('Download the PDF', 'gloceps'); ?>
                                 </a></p>
                             </iframe>
+                            
+                            <!-- Mobile: Direct PDF link that opens in browser's native viewer -->
+                            <div class="publication-pdf-embed__mobile">
+                                <a href="<?php echo $pdf_url; ?>" target="_blank" rel="noopener" class="publication-pdf-embed__mobile-link">
+                                    <div class="publication-pdf-embed__mobile-preview">
+                                        <svg width="64" height="64" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="margin-bottom: var(--space-4);">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                                        </svg>
+                                        <h3><?php echo esc_html($pdf_title); ?></h3>
+                                        <p class="publication-pdf-embed__mobile-hint"><?php esc_html_e('Tap to view PDF in your browser', 'gloceps'); ?></p>
+                                        <span class="btn btn--primary"><?php esc_html_e('View PDF', 'gloceps'); ?></span>
+                                    </div>
+                                </a>
+                            </div>
                         </div>
                         <?php endif; ?>
 

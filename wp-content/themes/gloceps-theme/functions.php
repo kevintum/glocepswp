@@ -156,6 +156,8 @@ function gloceps_scripts() {
         );
     }
 
+    // No special scripts needed - using Google Docs Viewer iframe for mobile
+
     // Main JavaScript - ensure jQuery is loaded first
     wp_enqueue_script(
         'gloceps-main',
@@ -821,9 +823,28 @@ class GLOCEPS_Nav_Walker extends Walker_Nav_Menu {
             $classes[] = 'nav__item--has-dropdown';
         }
 
+        // Get target and rel attributes
+        $target = ! empty( $item->target ) ? esc_attr( $item->target ) : '';
+        $rel = ! empty( $item->xfn ) ? esc_attr( $item->xfn ) : '';
+        
+        // Add rel="noopener noreferrer" for security when target="_blank"
+        if ( $target === '_blank' && empty( $rel ) ) {
+            $rel = 'noopener noreferrer';
+        }
+        
+        // Build attributes string
+        $attributes = 'href="' . esc_url( $item->url ) . '"';
+        $attributes .= ' class="nav__link ' . esc_attr( $active_class ) . '"';
+        if ( $target ) {
+            $attributes .= ' target="' . $target . '"';
+        }
+        if ( $rel ) {
+            $attributes .= ' rel="' . $rel . '"';
+        }
+        
         if ( $depth === 0 ) {
             $output .= '<li class="' . esc_attr( implode( ' ', $classes ) ) . '">';
-            $output .= '<a href="' . esc_url( $item->url ) . '" class="nav__link ' . esc_attr( $active_class ) . '">';
+            $output .= '<a ' . $attributes . '>';
             $output .= esc_html( $item->title );
             
             if ( $has_children ) {
@@ -834,7 +855,15 @@ class GLOCEPS_Nav_Walker extends Walker_Nav_Menu {
             
             $output .= '</a>';
         } else {
-            $output .= '<a href="' . esc_url( $item->url ) . '" class="nav__dropdown-link">';
+            // For dropdown links, also include target and rel
+            $dropdown_attributes = 'href="' . esc_url( $item->url ) . '" class="nav__dropdown-link"';
+            if ( $target ) {
+                $dropdown_attributes .= ' target="' . $target . '"';
+            }
+            if ( $rel ) {
+                $dropdown_attributes .= ' rel="' . $rel . '"';
+            }
+            $output .= '<a ' . $dropdown_attributes . '>';
             $output .= esc_html( $item->title );
             $output .= '</a>';
         }
@@ -1611,3 +1640,152 @@ function gloceps_fix_cpt_archive_404() {
     }
 }
 add_action( 'template_redirect', 'gloceps_fix_cpt_archive_404', 1 );
+
+/**
+ * Add Frontend Order column to Team Category taxonomy
+ */
+function gloceps_add_team_category_order_column( $columns ) {
+    $columns['frontend_order'] = __( 'Frontend Order', 'gloceps' );
+    return $columns;
+}
+add_filter( 'manage_edit-team_category_columns', 'gloceps_add_team_category_order_column' );
+
+/**
+ * Display Frontend Order value in Team Category column
+ */
+function gloceps_team_category_order_column_content( $content, $column_name, $term_id ) {
+    if ( 'frontend_order' === $column_name ) {
+        $order = get_term_meta( $term_id, 'frontend_order', true );
+        $order = $order ? intval( $order ) : 0;
+        $content = '<span class="frontend-order-value">' . esc_html( $order ) . '</span>';
+    }
+    return $content;
+}
+add_filter( 'manage_team_category_custom_column', 'gloceps_team_category_order_column_content', 10, 3 );
+
+/**
+ * Add Frontend Order field to Team Category edit form
+ */
+function gloceps_team_category_add_order_field( $term ) {
+    $order = get_term_meta( $term->term_id, 'frontend_order', true );
+    $order = $order ? intval( $order ) : 0;
+    ?>
+    <tr class="form-field">
+        <th scope="row">
+            <label for="frontend_order"><?php esc_html_e( 'Frontend Order', 'gloceps' ); ?></label>
+        </th>
+        <td>
+            <input type="number" name="frontend_order" id="frontend_order" value="<?php echo esc_attr( $order ); ?>" min="0" step="1" />
+            <p class="description"><?php esc_html_e( 'Lower numbers appear first on the frontend. Categories with the same order will be sorted by name.', 'gloceps' ); ?></p>
+        </td>
+    </tr>
+    <?php
+}
+add_action( 'team_category_edit_form_fields', 'gloceps_team_category_add_order_field' );
+add_action( 'team_category_add_form_fields', 'gloceps_team_category_add_order_field' );
+
+/**
+ * Save Frontend Order for Team Category
+ */
+function gloceps_team_category_save_order( $term_id ) {
+    if ( isset( $_POST['frontend_order'] ) ) {
+        $order = intval( $_POST['frontend_order'] );
+        update_term_meta( $term_id, 'frontend_order', $order );
+    }
+}
+add_action( 'edited_team_category', 'gloceps_team_category_save_order' );
+add_action( 'created_team_category', 'gloceps_team_category_save_order' );
+
+/**
+ * AJAX handler for team pagination
+ */
+function gloceps_ajax_team_pagination() {
+    // Verify nonce
+    if ( ! isset( $_POST['nonce'] ) || ! wp_verify_nonce( $_POST['nonce'], 'gloceps_nonce' ) ) {
+        wp_send_json_error( array( 'message' => 'Security check failed' ) );
+    }
+
+    $category = isset( $_POST['category'] ) ? sanitize_text_field( $_POST['category'] ) : 'all';
+    $page = isset( $_POST['page'] ) ? max( 1, intval( $_POST['page'] ) ) : 1;
+    $items_per_page = get_field( 'team_items_per_page', 'option' ) ?: 12;
+
+    // Build query args
+    $query_args = array(
+        'post_type' => 'team_member',
+        'posts_per_page' => -1,
+        'orderby' => 'meta_value_num',
+        'meta_key' => 'display_order',
+        'order' => 'ASC',
+    );
+
+    if ( $category !== 'all' ) {
+        $query_args['tax_query'] = array(
+            array(
+                'taxonomy' => 'team_category',
+                'field' => 'slug',
+                'terms' => $category,
+            ),
+        );
+    }
+
+    $team_query = new WP_Query( $query_args );
+
+    if ( ! $team_query->have_posts() ) {
+        wp_send_json_error( array( 'message' => 'No members found' ) );
+    }
+
+    // Collect member IDs directly (no grouping needed when filtering by category)
+    $all_members = array();
+    while ( $team_query->have_posts() ) {
+        $team_query->the_post();
+        $member_id = get_the_ID();
+        // Only add if not already in array (prevent duplicates)
+        if ( ! in_array( $member_id, $all_members, true ) ) {
+            $all_members[] = $member_id;
+        }
+    }
+    wp_reset_postdata();
+
+    // Sort by display_order meta if available
+    usort( $all_members, function( $a, $b ) {
+        $order_a = get_post_meta( $a, 'display_order', true ) ?: 999;
+        $order_b = get_post_meta( $b, 'display_order', true ) ?: 999;
+        return intval( $order_a ) - intval( $order_b );
+    } );
+
+    if ( empty( $all_members ) ) {
+        wp_send_json_error( array( 'message' => 'No members found for category' ) );
+    }
+
+    $total_members = count( $all_members );
+    $total_pages = ceil( $total_members / $items_per_page );
+    $offset = ( $page - 1 ) * $items_per_page;
+    $members = array_slice( $all_members, $offset, $items_per_page );
+
+    // #region agent log
+    error_log( 'TEAM AJAX DEBUG: category=' . $category . ', page=' . $page . ', total_members=' . $total_members . ', items_per_page=' . $items_per_page . ', offset=' . $offset . ', members_count=' . count( $members ) . ', member_ids=' . implode( ',', $members ) );
+    // #endregion
+
+    // Render team cards
+    ob_start();
+    global $post;
+    foreach ( $members as $member_id ) {
+        $post = get_post( $member_id );
+        if ( ! $post ) {
+            continue;
+        }
+        setup_postdata( $post );
+        get_template_part( 'template-parts/components/team-card' );
+    }
+    wp_reset_postdata();
+    $html = ob_get_clean();
+
+    wp_send_json_success( array(
+        'html' => $html,
+        'page' => $page,
+        'total_pages' => $total_pages,
+        'total_members' => $total_members,
+    ) );
+}
+add_action( 'wp_ajax_gloceps_team_pagination', 'gloceps_ajax_team_pagination' );
+add_action( 'wp_ajax_nopriv_gloceps_team_pagination', 'gloceps_ajax_team_pagination' );

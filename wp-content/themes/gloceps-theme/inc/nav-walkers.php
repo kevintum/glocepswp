@@ -38,6 +38,11 @@ class GLOCEPS_Primary_Nav_Walker extends Walker_Nav_Menu {
         $atts['href']   = ! empty( $item->url ) ? $item->url : '';
         $atts['class']  = 'nav__link';
         
+        // Add rel="noopener noreferrer" for security when target="_blank"
+        if ( $atts['target'] === '_blank' && empty( $atts['rel'] ) ) {
+            $atts['rel'] = 'noopener noreferrer';
+        }
+        
         $atts = apply_filters( 'nav_menu_link_attributes', $atts, $item, $args, $depth );
         
         $attributes = '';
@@ -111,6 +116,11 @@ class GLOCEPS_Mobile_Nav_Walker extends Walker_Nav_Menu {
         $atts['rel']    = ! empty( $item->xfn ) ? $item->xfn : '';
         $atts['href']   = ! empty( $item->url ) ? $item->url : '';
         $atts['class']  = 'mobile-menu__link';
+        
+        // Add rel="noopener noreferrer" for security when target="_blank"
+        if ( $atts['target'] === '_blank' && empty( $atts['rel'] ) ) {
+            $atts['rel'] = 'noopener noreferrer';
+        }
         
         $atts = apply_filters( 'nav_menu_link_attributes', $atts, $item, $args, $depth );
         

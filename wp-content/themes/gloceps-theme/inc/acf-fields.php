@@ -2707,6 +2707,17 @@ function gloceps_register_acf_fields() {
                 'rows' => 3,
                 'default_value' => 'Meet the distinguished professionals, thought leaders, and experts driving GLOCEPS\' mission to advance policy research and strategic dialogue.',
             ),
+            array(
+                'key' => 'field_team_items_per_page',
+                'label' => 'Items Per Page',
+                'name' => 'team_items_per_page',
+                'type' => 'number',
+                'instructions' => 'Number of team members to show per category before pagination. Default: 12',
+                'default_value' => 12,
+                'min' => 1,
+                'max' => 50,
+                'step' => 1,
+            ),
         ),
         'location' => array(
             array(

@@ -258,6 +258,22 @@ function gloceps_google_analytics() {
 add_action( 'wp_head', 'gloceps_google_analytics', 20 );
 
 /**
+ * Truncate breadcrumb title to specified word limit
+ * 
+ * @param string $title The title to truncate
+ * @param int $word_limit Maximum number of words (default: 10)
+ * @return string Truncated title with ellipsis if needed
+ */
+function gloceps_truncate_breadcrumb_title( $title, $word_limit = 10 ) {
+    $words = explode( ' ', $title );
+    if ( count( $words ) > $word_limit ) {
+        $words = array_slice( $words, 0, $word_limit );
+        return implode( ' ', $words ) . '...';
+    }
+    return $title;
+}
+
+/**
  * Display breadcrumbs
  */
 function gloceps_breadcrumbs() {
@@ -271,7 +287,9 @@ function gloceps_breadcrumbs() {
     
     if ( is_archive() ) {
         if ( is_post_type_archive() ) {
-            echo '<span class="breadcrumbs__current">' . esc_html( post_type_archive_title( '', false ) ) . '</span>';
+            $archive_title = post_type_archive_title( '', false );
+            $truncated_title = gloceps_truncate_breadcrumb_title( $archive_title, 10 );
+            echo '<span class="breadcrumbs__current" data-full-title="' . esc_attr( $archive_title ) . '">' . esc_html( $truncated_title ) . '</span>';
         } elseif ( is_tax() ) {
             $term = get_queried_object();
             $post_type = get_post_type();
@@ -282,9 +300,13 @@ function gloceps_breadcrumbs() {
                     echo '<span class="breadcrumbs__separator">/</span>';
                 }
             }
-            echo '<span class="breadcrumbs__current">' . esc_html( $term->name ) . '</span>';
+            $term_name = $term->name;
+            $truncated_name = gloceps_truncate_breadcrumb_title( $term_name, 10 );
+            echo '<span class="breadcrumbs__current" data-full-title="' . esc_attr( $term_name ) . '">' . esc_html( $truncated_name ) . '</span>';
         } else {
-            echo '<span class="breadcrumbs__current">' . esc_html( get_the_archive_title() ) . '</span>';
+            $archive_title = get_the_archive_title();
+            $truncated_title = gloceps_truncate_breadcrumb_title( $archive_title, 10 );
+            echo '<span class="breadcrumbs__current" data-full-title="' . esc_attr( $archive_title ) . '">' . esc_html( $truncated_title ) . '</span>';
         }
     } elseif ( is_singular() ) {
         $post_type = get_post_type();
@@ -295,7 +317,9 @@ function gloceps_breadcrumbs() {
                 echo '<span class="breadcrumbs__separator">/</span>';
             }
         }
-        echo '<span class="breadcrumbs__current">' . esc_html( get_the_title() ) . '</span>';
+        $post_title = get_the_title();
+        $truncated_title = gloceps_truncate_breadcrumb_title( $post_title, 10 );
+        echo '<span class="breadcrumbs__current" data-full-title="' . esc_attr( $post_title ) . '">' . esc_html( $truncated_title ) . '</span>';
     } elseif ( is_page() ) {
         global $post;
         
@@ -321,7 +345,9 @@ function gloceps_breadcrumbs() {
                 echo '<span class="breadcrumbs__separator">/</span>';
             }
         }
-        echo '<span class="breadcrumbs__current">' . esc_html( get_the_title() ) . '</span>';
+        $page_title = get_the_title();
+        $truncated_title = gloceps_truncate_breadcrumb_title( $page_title, 10 );
+        echo '<span class="breadcrumbs__current" data-full-title="' . esc_attr( $page_title ) . '">' . esc_html( $truncated_title ) . '</span>';
     }
     
     echo '</nav>';

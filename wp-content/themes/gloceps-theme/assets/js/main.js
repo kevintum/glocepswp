@@ -107,7 +107,17 @@
     }, observerOptions);
 
     revealElements.forEach(el => {
-      revealObserver.observe(el);
+      // Check if element is already in viewport on page load
+      const rect = el.getBoundingClientRect();
+      const isInViewport = rect.top < window.innerHeight && rect.bottom > 0;
+      
+      if (isInViewport) {
+        // Element is already visible, add visible class immediately
+        el.classList.add('visible');
+      } else {
+        // Element is not in viewport, observe it
+        revealObserver.observe(el);
+      }
     });
   }
 
@@ -1106,12 +1116,11 @@
   });
 
   // ============================================
-  // Team Bio Modal
+  // Team Bio Modal (Event Delegation for AJAX)
   // ============================================
   const bioModal = document.getElementById('bioModal');
   
   if (bioModal) {
-    const bioLinks = document.querySelectorAll('.team-card__bio-link');
     const closeBtn = bioModal.querySelector('.bio-modal__close');
     const overlay = bioModal.querySelector('.bio-modal__overlay');
 
@@ -1171,14 +1180,31 @@
       document.body.style.overflow = '';
     }
 
-    bioLinks.forEach(link => {
-      link.addEventListener('click', function(e) {
+    // Use event delegation for bio links (works with AJAX-loaded content)
+    document.addEventListener('click', function(e) {
+      const bioLink = e.target.closest('.team-card__bio-link');
+      if (bioLink) {
         e.preventDefault();
-        const card = this.closest('.team-card');
+        const card = bioLink.closest('.team-card');
         if (card) {
+          // #region agent log
+          fetch('http://127.0.0.1:7242/ingest/09ec82c7-ebc5-4630-a97b-1172a388b9cc', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              location: 'main.js:bioLinkClick',
+              message: 'Bio link clicked',
+              data: { cardFound: !!card, cardName: card?.dataset?.name },
+              timestamp: Date.now(),
+              sessionId: 'debug-session',
+              runId: 'post-fix',
+              hypothesisId: 'F'
+            })
+          }).catch(() => {});
+          // #endregion
           openBioModal(card);
         }
-      });
+      }
     });
 
     if (closeBtn) {
@@ -2229,6 +2255,284 @@
     document.addEventListener('DOMContentLoaded', initNavDropdownHover);
   } else {
     initNavDropdownHover();
+  }
+
+  // ============================================
+  // Breadcrumb Title Truncation (Responsive)
+  // ============================================
+  function truncateBreadcrumbTitles() {
+    const breadcrumbCurrents = document.querySelectorAll('.breadcrumbs__current[data-full-title]');
+    const isMobile = window.innerWidth <= 768;
+    const wordLimit = isMobile ? 8 : 12;
+
+    breadcrumbCurrents.forEach((element) => {
+      const fullTitle = element.getAttribute('data-full-title');
+      if (!fullTitle) return;
+
+      const words = fullTitle.split(' ');
+      if (words.length > wordLimit) {
+        const truncated = words.slice(0, wordLimit).join(' ') + '...';
+        element.textContent = truncated;
+      } else {
+        element.textContent = fullTitle;
+      }
+    });
+  }
+
+  // Run on load and resize
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', truncateBreadcrumbTitles);
+  } else {
+    truncateBreadcrumbTitles();
+  }
+
+  // Use a different variable name to avoid conflict with navigation resizeTimeout
+  let breadcrumbResizeTimeout;
+  window.addEventListener('resize', () => {
+    clearTimeout(breadcrumbResizeTimeout);
+    breadcrumbResizeTimeout = setTimeout(truncateBreadcrumbTitles, 150);
+  });
+
+  // ============================================
+  // Team Archive AJAX Pagination (Event Delegation)
+  // ============================================
+  function handleTeamPaginationClick(e) {
+    // Check if glocepsAjax is available
+    if (typeof glocepsAjax === 'undefined') {
+      console.warn('glocepsAjax not defined - pagination will not work');
+      return;
+    }
+    
+    const link = e.target.closest('.pagination__link[data-page]');
+    if (!link) return;
+    
+    e.preventDefault();
+    e.stopPropagation();
+        
+    const page = parseInt(link.getAttribute('data-page'));
+    const category = link.getAttribute('data-category');
+    const section = document.querySelector(`.team-category-section[data-category="${category}"]`);
+    
+    // #region agent log
+    fetch('http://127.0.0.1:7242/ingest/09ec82c7-ebc5-4630-a97b-1172a388b9cc', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        location: 'main.js:teamPaginationClick',
+        message: 'Pagination link clicked',
+        data: { page, category, sectionFound: !!section },
+        timestamp: Date.now(),
+        sessionId: 'debug-session',
+        runId: 'post-fix',
+        hypothesisId: 'B'
+      })
+    }).catch(() => {});
+    // #endregion
+        
+    if (!section) {
+      console.warn('Team section not found for category:', category);
+      return;
+    }
+    
+    const grid = section.querySelector('.team-grid');
+    const pagination = section.querySelector('.team-pagination');
+    
+    if (!grid || !pagination) {
+      console.warn('Grid or pagination not found in section');
+      return;
+    }
+        
+    // Show loading state
+    grid.style.opacity = '0.5';
+    grid.style.pointerEvents = 'none';
+    
+    // Disable all pagination links (works for both buttons and anchors)
+    pagination.querySelectorAll('.pagination__link').forEach(btn => {
+      if (btn.tagName === 'BUTTON') {
+        btn.disabled = true;
+      } else {
+        btn.style.pointerEvents = 'none';
+        btn.style.opacity = '0.5';
+      }
+    });
+    
+    // Make AJAX request
+    // #region agent log
+    fetch('http://127.0.0.1:7242/ingest/09ec82c7-ebc5-4630-a97b-1172a388b9cc', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        location: 'main.js:beforeAjax',
+        message: 'Before AJAX request',
+        data: { ajaxurl: glocepsAjax.ajaxurl, category, page },
+        timestamp: Date.now(),
+        sessionId: 'debug-session',
+        runId: 'post-fix',
+        hypothesisId: 'C'
+      })
+    }).catch(() => {});
+    // #endregion
+    
+    fetch(glocepsAjax.ajaxurl, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+          },
+          body: new URLSearchParams({
+            action: 'gloceps_team_pagination',
+            nonce: glocepsAjax.nonce,
+            category: category,
+            page: page,
+          }),
+        })
+    .then(response => {
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      return response.json();
+    })
+    .then(data => {
+      // #region agent log
+      fetch('http://127.0.0.1:7242/ingest/09ec82c7-ebc5-4630-a97b-1172a388b9cc', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          location: 'main.js:ajaxResponse',
+          message: 'AJAX response received',
+          data: { success: data.success, page: data.data?.page, totalPages: data.data?.total_pages, htmlLength: data.data?.html?.length },
+          timestamp: Date.now(),
+          sessionId: 'debug-session',
+          runId: 'post-fix',
+          hypothesisId: 'D'
+        })
+      }).catch(() => {});
+      // #endregion
+      
+      if (data.success) {
+        // Replace grid content
+        grid.innerHTML = data.data.html;
+        grid.setAttribute('data-page', page);
+        
+        // Re-initialize reveal animations for new content
+        const revealElements = grid.querySelectorAll('.reveal');
+        if (revealElements.length > 0 && typeof IntersectionObserver !== 'undefined') {
+          const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -80px 0px'
+          };
+          const revealObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+              if (entry.isIntersecting) {
+                entry.target.classList.add('visible');
+                revealObserver.unobserve(entry.target);
+              }
+            });
+          }, observerOptions);
+          revealElements.forEach(el => revealObserver.observe(el));
+        }
+        
+        // Update pagination
+        updatePagination(pagination, page, data.data.total_pages, category);
+        
+        // Scroll to top of section
+        section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      } else {
+        console.error('Pagination error:', data.data?.message || 'Unknown error');
+        alert('Failed to load team members. Please try again.');
+      }
+    })
+    .catch(error => {
+      console.error('Pagination error:', error);
+      // #region agent log
+      fetch('http://127.0.0.1:7242/ingest/09ec82c7-ebc5-4630-a97b-1172a388b9cc', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          location: 'main.js:ajaxError',
+          message: 'AJAX error',
+          data: { error: error.message, stack: error.stack },
+          timestamp: Date.now(),
+          sessionId: 'debug-session',
+          runId: 'post-fix',
+          hypothesisId: 'E'
+        })
+      }).catch(() => {});
+      // #endregion
+      alert('Failed to load team members. Please try again.');
+    })
+    .finally(() => {
+      // Restore grid state
+      grid.style.opacity = '1';
+      grid.style.pointerEvents = '';
+      
+      // Re-enable pagination links (works for both buttons and anchors)
+      pagination.querySelectorAll('.pagination__link').forEach(btn => {
+        if (btn.tagName === 'BUTTON') {
+          btn.disabled = false;
+        } else {
+          btn.style.pointerEvents = '';
+          btn.style.opacity = '';
+        }
+      });
+    });
+  }
+  
+  function initTeamPagination() {
+    // Use event delegation on document for more reliable handling
+    document.removeEventListener('click', handleTeamPaginationClick);
+    document.addEventListener('click', handleTeamPaginationClick);
+    
+    // #region agent log
+    const paginationLinks = document.querySelectorAll('.team-pagination .pagination__link[data-page]');
+    fetch('http://127.0.0.1:7242/ingest/09ec82c7-ebc5-4630-a97b-1172a388b9cc', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        location: 'main.js:initTeamPagination',
+        message: 'Team pagination init',
+        data: { 
+          linksFound: paginationLinks.length, 
+          glocepsAjax: typeof glocepsAjax !== 'undefined' ? 'exists' : 'missing',
+          ajaxurl: typeof glocepsAjax !== 'undefined' ? glocepsAjax.ajaxurl : 'N/A'
+        },
+        timestamp: Date.now(),
+        sessionId: 'debug-session',
+        runId: 'post-fix',
+        hypothesisId: 'A'
+      })
+    }).catch(() => {});
+    // #endregion
+  }
+  
+  function updatePagination(pagination, currentPage, totalPages, category) {
+    let html = '';
+    
+    // Previous button
+    if (currentPage > 1) {
+      html += `<button type="button" class="pagination__link pagination__link--prev" data-page="${currentPage - 1}" data-category="${category}">Previous</button>`;
+    }
+    
+    // Page numbers
+    for (let i = 1; i <= totalPages; i++) {
+      const isActive = i === currentPage;
+      html += `<button type="button" class="pagination__link ${isActive ? 'pagination__link--active' : ''}" data-page="${i}" data-category="${category}" ${isActive ? 'aria-current="page"' : ''}>${i}</button>`;
+    }
+    
+    // Next button
+    if (currentPage < totalPages) {
+      html += `<button type="button" class="pagination__link pagination__link--next" data-page="${currentPage + 1}" data-category="${category}">Next</button>`;
+    }
+    
+    pagination.querySelector('nav').innerHTML = html;
+    
+    // No need to re-attach listeners - event delegation handles it
+  }
+  
+  // Initialize on load
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initTeamPagination);
+  } else {
+    initTeamPagination();
   }
 
 })();

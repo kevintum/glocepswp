@@ -1238,6 +1238,7 @@ p {
 .hero__title {
   font-size: clamp(3rem, 5.5vw, 4.5rem); /* Larger for hero statement */
   color: var(--color-white);
+  margin-top: var(--space-8); /* Add space below logo on desktop */
   margin-bottom: var(--space-6);
   font-weight: 400; /* Lighter weight to contrast with emphasized text */
   line-height: 1.1;
@@ -1484,6 +1485,7 @@ p {
 
   .hero__title {
     font-size: clamp(2rem, 4vw, 2.5rem); /* Still larger on mobile for hero statement */
+    margin-top: 0; /* Reset top margin on mobile */
   }
 
   .hero__description {
@@ -1492,6 +1494,17 @@ p {
   
   .hero__link {
     font-size: clamp(0.9375rem, 1.1vw, 1rem); /* Slightly larger on mobile */
+  }
+
+  /* Breadcrumb constraints on mobile */
+  .breadcrumbs,
+  .page-header__breadcrumb {
+    max-width: 100%;
+    overflow: hidden;
+  }
+
+  .breadcrumbs__current {
+    max-width: calc(100vw - 120px); /* Account for padding and other breadcrumb elements */
   }
 
   .hero__scroll {
@@ -3807,6 +3820,12 @@ p {
 .breadcrumbs__current {
   color: var(--color-gray-900);
   font-weight: 500;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  display: inline-block;
+  vertical-align: middle;
 }
 
 .page-header__title {
@@ -4186,35 +4205,40 @@ div.trust-bar,
   transition: all var(--duration-slow) var(--ease-out-expo);
 }
 
-.stagger-children.visible > *:nth-child(1) {
-  transition-delay: 0ms;
+/* Apply stagger animation to all children when visible - multiple selectors for reliability */
+.stagger-children.visible > *,
+.reveal.stagger-children.visible > *,
+.reveal.visible.stagger-children > *,
+.stagger-children.reveal.visible > * {
   opacity: 1;
   transform: translateY(0);
 }
-.stagger-children.visible > *:nth-child(2) {
-  transition-delay: 100ms;
-  opacity: 1;
-  transform: translateY(0);
-}
-.stagger-children.visible > *:nth-child(3) {
-  transition-delay: 200ms;
-  opacity: 1;
-  transform: translateY(0);
-}
-.stagger-children.visible > *:nth-child(4) {
-  transition-delay: 300ms;
-  opacity: 1;
-  transform: translateY(0);
-}
-.stagger-children.visible > *:nth-child(5) {
-  transition-delay: 400ms;
-  opacity: 1;
-  transform: translateY(0);
-}
-.stagger-children.visible > *:nth-child(6) {
-  transition-delay: 500ms;
-  opacity: 1;
-  transform: translateY(0);
+
+/* Individual delay for first 20 items (covers most use cases) */
+.stagger-children.visible > *:nth-child(1) { transition-delay: 0ms; }
+.stagger-children.visible > *:nth-child(2) { transition-delay: 100ms; }
+.stagger-children.visible > *:nth-child(3) { transition-delay: 200ms; }
+.stagger-children.visible > *:nth-child(4) { transition-delay: 300ms; }
+.stagger-children.visible > *:nth-child(5) { transition-delay: 400ms; }
+.stagger-children.visible > *:nth-child(6) { transition-delay: 500ms; }
+.stagger-children.visible > *:nth-child(7) { transition-delay: 600ms; }
+.stagger-children.visible > *:nth-child(8) { transition-delay: 700ms; }
+.stagger-children.visible > *:nth-child(9) { transition-delay: 800ms; }
+.stagger-children.visible > *:nth-child(10) { transition-delay: 900ms; }
+.stagger-children.visible > *:nth-child(11) { transition-delay: 1000ms; }
+.stagger-children.visible > *:nth-child(12) { transition-delay: 1100ms; }
+.stagger-children.visible > *:nth-child(13) { transition-delay: 1200ms; }
+.stagger-children.visible > *:nth-child(14) { transition-delay: 1300ms; }
+.stagger-children.visible > *:nth-child(15) { transition-delay: 1400ms; }
+.stagger-children.visible > *:nth-child(16) { transition-delay: 1500ms; }
+.stagger-children.visible > *:nth-child(17) { transition-delay: 1600ms; }
+.stagger-children.visible > *:nth-child(18) { transition-delay: 1700ms; }
+.stagger-children.visible > *:nth-child(19) { transition-delay: 1800ms; }
+.stagger-children.visible > *:nth-child(20) { transition-delay: 1900ms; }
+
+/* Fallback for items beyond 20 - use max delay */
+.stagger-children.visible > *:nth-child(n+21) {
+  transition-delay: 2000ms;
 }
 
 /* ============================================
@@ -7039,6 +7063,57 @@ div.trust-bar,
   color: var(--color-white);
 }
 
+/* Team Pagination */
+.team-pagination {
+  margin-top: var(--space-12);
+}
+
+.team-pagination .pagination {
+  margin-top: 0;
+}
+
+.team-pagination .pagination__link {
+  min-width: 40px;
+  height: 40px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-2) var(--space-3);
+  background: var(--color-white);
+  border: 1px solid var(--color-gray-300);
+  border-radius: var(--radius-md);
+  font-size: var(--text-sm);
+  font-weight: 500;
+  color: var(--color-gray-700);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  text-decoration: none;
+  font-family: inherit;
+}
+
+.team-pagination .pagination__link:hover:not(:disabled) {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+  background: var(--color-primary-muted);
+}
+
+.team-pagination .pagination__link--active {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  color: var(--color-white);
+}
+
+.team-pagination .pagination__link:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.team-pagination .pagination__link--prev,
+.team-pagination .pagination__link--next {
+  padding: var(--space-2) var(--space-4);
+}
+
 /* Publications CTA - Enhanced Design */
 .publications-cta {
   position: relative;
@@ -7523,18 +7598,164 @@ div.trust-bar,
   border-radius: var(--radius-lg);
   overflow: hidden;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  position: relative;
 }
 
-.publication-pdf-embed iframe {
+.publication-pdf-embed__iframe,
+.publication-pdf-embed__mobile {
   width: 100%;
-  min-height: 800px;
   border: 0;
   display: block;
 }
 
+.publication-pdf-embed__mobile object,
+.publication-pdf-embed__mobile embed {
+  width: 100%;
+  border: 0;
+  display: block;
+}
+
+.publication-pdf-embed__iframe {
+  min-height: 800px;
+}
+
+.publication-pdf-embed__mobile {
+  min-height: 70vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.publication-pdf-embed__mobile-link {
+  display: block;
+  width: 100%;
+  text-decoration: none;
+  color: inherit;
+}
+
+.publication-pdf-embed__mobile-preview {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-8);
+  background: var(--color-white);
+  border: 2px dashed var(--color-gray-300);
+  border-radius: var(--radius-lg);
+  text-align: center;
+  min-height: 300px;
+  transition: all 0.2s ease;
+}
+
+.publication-pdf-embed__mobile-link:hover .publication-pdf-embed__mobile-preview,
+.publication-pdf-embed__mobile-link:active .publication-pdf-embed__mobile-preview {
+  border-color: var(--color-primary);
+  background: var(--color-gray-50);
+}
+
+.publication-pdf-embed__mobile-preview svg {
+  color: var(--color-primary);
+  margin-bottom: var(--space-4);
+}
+
+.publication-pdf-embed__mobile-preview h3 {
+  font-size: var(--text-lg);
+  font-weight: 600;
+  color: var(--color-gray-900);
+  margin-bottom: var(--space-2);
+}
+
+.publication-pdf-embed__mobile-hint {
+  font-size: var(--text-sm);
+  color: var(--color-gray-600);
+  margin-bottom: var(--space-6);
+}
+
+.publication-pdf-embed__mobile-canvas {
+  width: 100%;
+  background: var(--color-white);
+  border: 1px solid var(--color-gray-200);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  position: relative;
+}
+
+.publication-pdf-embed__mobile-canvas canvas {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-width: 100%;
+}
+
+.pdf-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-4);
+  padding: var(--space-4);
+  background: var(--color-gray-50);
+  border-top: 1px solid var(--color-gray-200);
+}
+
+.pdf-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border: 1px solid var(--color-gray-300);
+  background: var(--color-white);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: var(--color-gray-700);
+}
+
+.pdf-btn:hover:not(:disabled) {
+  background: var(--color-gray-100);
+  border-color: var(--color-gray-400);
+}
+
+.pdf-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.pdf-page-info {
+  font-size: var(--text-sm);
+  color: var(--color-gray-700);
+  font-weight: 500;
+  min-width: 60px;
+  text-align: center;
+}
+
+.pdf-loading,
+.pdf-error {
+  padding: var(--space-8);
+  text-align: center;
+  color: var(--color-gray-600);
+}
+
+/* Desktop: Show direct PDF iframe, hide mobile viewer */
+@media (min-width: 769px) {
+  .publication-pdf-embed__iframe {
+    display: block;
+  }
+  
+  .publication-pdf-embed__mobile {
+    display: none;
+  }
+}
+
+/* Mobile: Hide direct PDF iframe, show Google Docs Viewer */
 @media (max-width: 768px) {
-  .publication-pdf-embed iframe {
-    min-height: 600px;
+  .publication-pdf-embed__iframe {
+    display: none;
+  }
+  
+  .publication-pdf-embed__mobile {
+    display: block;
+    min-height: 70vh;
   }
 }
 
@@ -10495,17 +10716,64 @@ div.trust-bar,
     gap: var(--space-4);
   }
 
+  .media-categories-section {
+    padding-top: var(--space-8);
+    padding-bottom: var(--space-8);
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
+  }
+
+  .media-categories-section .container {
+    width: 100%;
+    max-width: 100%;
+    padding-left: var(--space-4);
+    padding-right: var(--space-4);
+  }
+
   .media-categories-grid {
     grid-template-columns: 1fr;
+    gap: var(--space-4);
+    width: 100%;
+    max-width: 100%;
   }
 
   .media-category-card {
     aspect-ratio: 16/9;
+    min-height: 280px;
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .media-category-card__content {
+    padding: var(--space-6);
+  }
+
+  .media-category-card__icon {
+    width: 48px;
+    height: 48px;
+    margin-bottom: var(--space-3);
+  }
+
+  .media-category-card__icon svg {
+    width: 24px;
+    height: 24px;
+  }
+
+  .media-category-card__title {
+    font-size: var(--text-xl);
+    margin-bottom: var(--space-1);
+  }
+
+  .media-category-card__description {
+    font-size: var(--text-xs);
+    margin-bottom: var(--space-3);
   }
 
   .media-category-card__cta {
     opacity: 1;
     transform: translateY(0);
+    font-size: var(--text-xs);
   }
 }
 
@@ -16620,13 +16888,34 @@ body.woocommerce-order-pay .order-pay-page-wrapper {
 
   .article-single__body .container {
     grid-template-columns: 1fr;
+    gap: var(--space-8);
+  }
+
+  .article-single__content {
+    padding: var(--space-6) 0;
   }
 
   .article-single__sidebar {
     position: static;
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: var(--space-6);
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .article-single__authors {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-5);
+    margin-bottom: var(--space-6);
+  }
+
+  .article-single__author-card {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .article-single__related {
+    width: 100%;
+    max-width: 100%;
   }
 }
 
