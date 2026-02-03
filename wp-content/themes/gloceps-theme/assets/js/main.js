@@ -2535,4 +2535,133 @@
     initTeamPagination();
   }
 
+  // ============================================
+  // Hero Carousel
+  // ============================================
+  function initHeroCarousel() {
+    const carousels = document.querySelectorAll('[data-hero-carousel]');
+    
+    carousels.forEach(carousel => {
+      const track = carousel.querySelector('[data-carousel-track]');
+      const slides = carousel.querySelectorAll('.hero-carousel__slide');
+      const dots = carousel.querySelectorAll('[data-carousel-dots] .hero-carousel__dot');
+      const prevBtn = carousel.querySelector('[data-carousel-prev]');
+      const nextBtn = carousel.querySelector('[data-carousel-next]');
+      const autoplaySpeed = parseInt(carousel.getAttribute('data-autoplay')) || 5;
+      
+      if (!track || slides.length <= 1) return;
+      
+      let currentSlide = 0;
+      let autoplayTimer = null;
+      
+      function goToSlide(index) {
+        // Remove active class from all slides and dots
+        slides.forEach(slide => slide.classList.remove('hero-carousel__slide--active'));
+        dots.forEach(dot => dot.classList.remove('hero-carousel__dot--active'));
+        
+        // Add active class to current slide and dot
+        if (slides[index]) {
+          slides[index].classList.add('hero-carousel__slide--active');
+        }
+        if (dots[index]) {
+          dots[index].classList.add('hero-carousel__dot--active');
+        }
+        
+        currentSlide = index;
+        
+        // Reset autoplay
+        if (autoplaySpeed > 0) {
+          clearInterval(autoplayTimer);
+          startAutoplay();
+        }
+      }
+      
+      function nextSlide() {
+        const next = (currentSlide + 1) % slides.length;
+        goToSlide(next);
+      }
+      
+      function prevSlide() {
+        const prev = (currentSlide - 1 + slides.length) % slides.length;
+        goToSlide(prev);
+      }
+      
+      function startAutoplay() {
+        if (autoplaySpeed > 0) {
+          autoplayTimer = setInterval(nextSlide, autoplaySpeed * 1000);
+        }
+      }
+      
+      function stopAutoplay() {
+        clearInterval(autoplayTimer);
+      }
+      
+      // Dot navigation
+      dots.forEach((dot, index) => {
+        dot.addEventListener('click', () => {
+          goToSlide(index);
+        });
+      });
+      
+      // Arrow navigation
+      if (nextBtn) {
+        nextBtn.addEventListener('click', () => {
+          nextSlide();
+        });
+      }
+      
+      if (prevBtn) {
+        prevBtn.addEventListener('click', () => {
+          prevSlide();
+        });
+      }
+      
+      // Pause on hover
+      carousel.addEventListener('mouseenter', stopAutoplay);
+      carousel.addEventListener('mouseleave', startAutoplay);
+      
+      // Keyboard navigation
+      carousel.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowLeft') {
+          prevSlide();
+        } else if (e.key === 'ArrowRight') {
+          nextSlide();
+        }
+      });
+      
+      // Start autoplay
+      startAutoplay();
+    });
+  }
+  
+  // Initialize hero carousel
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initHeroCarousel);
+  } else {
+    initHeroCarousel();
+  }
+
+  // ============================================
+  // Header White for Hero Split
+  // ============================================
+  function checkHeroSplit() {
+    const heroSplit = document.querySelector('.hero--split');
+    const header = document.getElementById('header');
+    
+    if (heroSplit && header) {
+      // Remove dark header class and ensure white/light header
+      header.classList.remove('header--dark');
+      // Add white header class if it exists, or ensure transparent/light styling
+      if (!header.classList.contains('header--transparent')) {
+        header.classList.add('header--transparent');
+      }
+    }
+  }
+  
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', checkHeroSplit);
+  } else {
+    checkHeroSplit();
+  }
+
 })();
