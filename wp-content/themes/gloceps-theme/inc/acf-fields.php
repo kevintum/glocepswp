@@ -14,8 +14,9 @@ if (!defined('ABSPATH')) {
 
 /**
  * Register ACF Field Groups
+ * Use 'init' hook with priority 20 to ensure post types are registered first
  */
-add_action('acf/init', 'gloceps_register_acf_fields');
+add_action('init', 'gloceps_register_acf_fields', 20);
 
 function gloceps_register_acf_fields() {
     // Only run if ACF is active
@@ -2288,6 +2289,14 @@ function gloceps_register_acf_fields() {
             'parent_slug'   => 'theme-settings',
         ));
 
+        // Jobs/Vacancies Archive Settings
+        acf_add_options_sub_page(array(
+            'page_title'    => 'Jobs Archive Settings',
+            'menu_title'    => 'Jobs Archive',
+            'menu_slug'     => 'theme-settings-vacancies',
+            'parent_slug'   => 'theme-settings',
+        ));
+
         // Gallery Archive Settings
         acf_add_options_sub_page(array(
             'page_title'    => 'Gallery Archive Settings',
@@ -2730,6 +2739,49 @@ function gloceps_register_acf_fields() {
         ),
     ));
 
+    // Register Jobs/Vacancies Archive Settings Fields
+    acf_add_local_field_group(array(
+        'key' => 'group_vacancy_archive_options',
+        'title' => 'Jobs Archive Settings',
+        'fields' => array(
+            array(
+                'key' => 'field_vacancy_intro_title',
+                'label' => 'Page Title',
+                'name' => 'vacancy_intro_title',
+                'type' => 'text',
+                'default_value' => 'Career Opportunities',
+            ),
+            array(
+                'key' => 'field_vacancy_intro_description',
+                'label' => 'Page Description',
+                'name' => 'vacancy_intro_description',
+                'type' => 'textarea',
+                'rows' => 3,
+                'default_value' => 'Join our team and contribute to advancing policy research and strategic dialogue.',
+            ),
+            array(
+                'key' => 'field_vacancy_items_per_page',
+                'label' => 'Items Per Page',
+                'name' => 'vacancy_items_per_page',
+                'type' => 'number',
+                'instructions' => 'Number of jobs to show per page. Default: 12',
+                'default_value' => 12,
+                'min' => 1,
+                'max' => 50,
+                'step' => 1,
+            ),
+        ),
+        'location' => array(
+            array(
+                array(
+                    'param' => 'options_page',
+                    'operator' => '==',
+                    'value' => 'theme-settings-vacancies',
+                ),
+            ),
+        ),
+    ));
+
     // Register Gallery Archive Settings Fields
     acf_add_local_field_group(array(
         'key' => 'group_gallery_archive_options',
@@ -2833,6 +2885,101 @@ function gloceps_get_flexible_layouts() {
                     'label' => 'Button 2 Link',
                     'name' => 'button2_link',
                     'type' => 'link',
+                ),
+            ),
+        ),
+
+        'hero_carousel' => array(
+            'key' => 'layout_hero_carousel',
+            'name' => 'hero_carousel',
+            'label' => 'Hero - Image Carousel',
+            'display' => 'block',
+            'sub_fields' => array(
+                array(
+                    'key' => 'field_hero_carousel_slides',
+                    'label' => 'Hero Slides',
+                    'name' => 'slides',
+                    'type' => 'repeater',
+                    'instructions' => 'Add up to 3 hero slides. The first slide is required. If slides 2-3 are empty, the first slide data will be used as defaults.',
+                    'required' => 1,
+                    'min' => 1,
+                    'max' => 3,
+                    'layout' => 'block',
+                    'button_label' => 'Add Slide',
+                    'sub_fields' => array(
+                        array(
+                            'key' => 'field_hero_carousel_slide_image',
+                            'label' => 'Background Image',
+                            'name' => 'image',
+                            'type' => 'image',
+                            'instructions' => 'Recommended size: 1920x1080px (16:9 aspect ratio) for optimal display. Minimum: 1600x900px.',
+                            'required' => 1,
+                            'return_format' => 'array',
+                            'preview_size' => 'medium',
+                            'library' => 'all',
+                        ),
+                        array(
+                            'key' => 'field_hero_carousel_slide_headline',
+                            'label' => 'Headline',
+                            'name' => 'headline',
+                            'type' => 'text',
+                            'instructions' => 'Main headline text displayed on the left side of the image.',
+                            'required' => 1,
+                            'placeholder' => 'e.g., Research. Knowledge. Influence.',
+                        ),
+                        array(
+                            'key' => 'field_hero_carousel_slide_description',
+                            'label' => 'Description / Tagline',
+                            'name' => 'description',
+                            'type' => 'textarea',
+                            'instructions' => 'Supporting text or tagline displayed below the headline.',
+                            'rows' => 3,
+                            'placeholder' => 'e.g., The Global Centre for Policy and Strategy...',
+                        ),
+                        array(
+                            'key' => 'field_hero_carousel_slide_button1_text',
+                            'label' => 'Button 1 Text',
+                            'name' => 'button1_text',
+                            'type' => 'text',
+                            'instructions' => 'Text for the primary call-to-action button.',
+                            'required' => 1,
+                            'placeholder' => 'e.g., Explore Our Work',
+                        ),
+                        array(
+                            'key' => 'field_hero_carousel_slide_button1_link',
+                            'label' => 'Button 1 Link',
+                            'name' => 'button1_link',
+                            'type' => 'link',
+                            'instructions' => 'Link for the primary call-to-action button.',
+                            'required' => 1,
+                        ),
+                        array(
+                            'key' => 'field_hero_carousel_slide_button2_text',
+                            'label' => 'Button 2 Text',
+                            'name' => 'button2_text',
+                            'type' => 'text',
+                            'instructions' => 'Text for the secondary call-to-action button.',
+                            'placeholder' => 'e.g., Learn More',
+                        ),
+                        array(
+                            'key' => 'field_hero_carousel_slide_button2_link',
+                            'label' => 'Button 2 Link',
+                            'name' => 'button2_link',
+                            'type' => 'link',
+                            'instructions' => 'Link for the secondary call-to-action button.',
+                        ),
+                    ),
+                ),
+                array(
+                    'key' => 'field_hero_carousel_autoplay',
+                    'label' => 'Auto-rotate Speed',
+                    'name' => 'autoplay_speed',
+                    'type' => 'number',
+                    'instructions' => 'Time in seconds before automatically moving to the next slide. Set to 0 to disable auto-rotation. Default: 5 seconds.',
+                    'default_value' => 5,
+                    'min' => 0,
+                    'max' => 30,
+                    'step' => 1,
                 ),
             ),
         ),
@@ -4522,6 +4669,25 @@ function gloceps_get_flexible_layouts() {
                     ),
                 ),
                 array(
+                    'key' => 'field_latest_articles_max_limit',
+                    'label' => 'Maximum Articles (Grid)',
+                    'name' => 'max_articles',
+                    'type' => 'number',
+                    'default_value' => '',
+                    'min' => 1,
+                    'max' => 100,
+                    'instructions' => 'Optional: Limit the total number of articles to fetch. Useful for landing pages where you want to show a few articles and direct users to the archive page. Leave empty to show all articles with full pagination.',
+                    'conditional_logic' => array(
+                        array(
+                            array(
+                                'field' => 'field_latest_articles_layout',
+                                'operator' => '==',
+                                'value' => 'grid',
+                            ),
+                        ),
+                    ),
+                ),
+                array(
                     'key' => 'field_latest_articles_carousel_count',
                     'label' => 'Number to Show (Carousel)',
                     'name' => 'carousel_count',
@@ -5055,4 +5221,160 @@ function gloceps_get_flexible_layouts() {
             ),
         ),
     );
+
+    // Register Job/Vacancy Fields - moved to separate function to ensure post types are registered
+    // This will be called separately on 'init' hook with priority 30
 }
+
+/**
+ * Register Vacancy Field Group
+ * Separate function to ensure post types are registered first
+ */
+function gloceps_register_vacancy_fields() {
+    if (!function_exists('acf_add_local_field_group')) {
+        return;
+    }
+    
+    if (!post_type_exists('vacancy')) {
+        return;
+    }
+    
+    $vacancy_field_group = array(
+        'key' => 'group_vacancy_fields',
+        'title' => 'Job Details',
+        'fields' => array(
+            array(
+                'key' => 'field_vacancy_location',
+                'label' => 'Location',
+                'name' => 'vacancy_location',
+                'type' => 'text',
+                'instructions' => 'Job location (e.g., "Nairobi, Kenya" or "Remote"). Optional.',
+                'required' => 0,
+                'placeholder' => 'e.g., Nairobi, Kenya',
+                'wrapper' => array(
+                    'width' => '50',
+                ),
+            ),
+            array(
+                'key' => 'field_vacancy_engagement_type',
+                'label' => 'Engagement Type',
+                'name' => 'vacancy_engagement_type',
+                'type' => 'select',
+                'instructions' => 'Type of employment engagement. Optional.',
+                'required' => 0,
+                'choices' => array(
+                    'full-time' => 'Full Time',
+                    'part-time' => 'Part Time',
+                    'contract' => 'Contract',
+                    'internship' => 'Internship',
+                    'consultancy' => 'Consultancy',
+                    'volunteer' => 'Volunteer',
+                ),
+                'allow_null' => 1,
+                'wrapper' => array(
+                    'width' => '50',
+                ),
+            ),
+            array(
+                'key' => 'field_vacancy_deadline',
+                'label' => 'Application Deadline',
+                'name' => 'vacancy_deadline',
+                'type' => 'date_picker',
+                'instructions' => 'Application deadline date. Optional.',
+                'required' => 0,
+                'display_format' => 'F j, Y',
+                'return_format' => 'Y-m-d',
+                'wrapper' => array(
+                    'width' => '50',
+                ),
+            ),
+            array(
+                'key' => 'field_vacancy_salary_range',
+                'label' => 'Salary Range',
+                'name' => 'vacancy_salary_range',
+                'type' => 'text',
+                'instructions' => 'Salary range or compensation details (e.g., "KES 500,000 - KES 700,000" or "Competitive"). Optional.',
+                'required' => 0,
+                'placeholder' => 'e.g., KES 500,000 - KES 700,000',
+                'wrapper' => array(
+                    'width' => '50',
+                ),
+            ),
+            array(
+                'key' => 'field_vacancy_writeup',
+                'label' => 'Job Description',
+                'name' => 'vacancy_writeup',
+                'type' => 'wysiwyg',
+                'instructions' => 'Detailed job description, requirements, and responsibilities. Optional - you can also use the main content editor.',
+                'required' => 0,
+                'tabs' => 'all',
+                'toolbar' => 'full',
+                'media_upload' => 1,
+            ),
+            array(
+                'key' => 'field_vacancy_application_url',
+                'label' => 'Application URL',
+                'name' => 'vacancy_application_url',
+                'type' => 'url',
+                'instructions' => 'External URL where applicants can apply (e.g., email link or external job board). Optional.',
+                'required' => 0,
+                'placeholder' => 'https://example.com/apply',
+            ),
+            array(
+                'key' => 'field_vacancy_documents',
+                'label' => 'Job Documents',
+                'name' => 'vacancy_documents',
+                'type' => 'repeater',
+                'instructions' => 'Upload PDF documents related to this job (e.g., detailed job description, application form). Optional.',
+                'required' => 0,
+                'min' => 0,
+                'max' => 5,
+                'layout' => 'table',
+                'button_label' => 'Add Document',
+                'sub_fields' => array(
+                    array(
+                        'key' => 'field_vacancy_document_file',
+                        'label' => 'PDF File',
+                        'name' => 'file',
+                        'type' => 'file',
+                        'instructions' => 'Upload a PDF file',
+                        'required' => 1,
+                        'return_format' => 'array',
+                        'library' => 'all',
+                        'mime_types' => 'pdf',
+                    ),
+                    array(
+                        'key' => 'field_vacancy_document_label',
+                        'label' => 'Label',
+                        'name' => 'label',
+                        'type' => 'text',
+                        'instructions' => 'Label for this document (e.g., "Job Description PDF", "Application Form")',
+                        'required' => 1,
+                        'placeholder' => 'e.g., Job Description PDF',
+                    ),
+                ),
+            ),
+        ),
+        'location' => array(
+            array(
+                array(
+                    'param' => 'post_type',
+                    'operator' => '==',
+                    'value' => 'vacancy',
+                ),
+            ),
+        ),
+        'menu_order' => 0,
+        'position' => 'normal',
+        'style' => 'default',
+        'label_placement' => 'top',
+        'instruction_placement' => 'label',
+        'hide_on_screen' => '',
+        'active' => true,
+    );
+    
+    acf_add_local_field_group($vacancy_field_group);
+}
+
+// Register vacancy fields separately on 'init' hook with priority 30
+add_action('init', 'gloceps_register_vacancy_fields', 30);

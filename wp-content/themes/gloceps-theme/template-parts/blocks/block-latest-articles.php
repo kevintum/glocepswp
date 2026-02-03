@@ -10,6 +10,7 @@ $section_description = get_sub_field('section_description') ?: 'Opinion and anal
 $layout = get_sub_field('layout') ?: 'grid';
 $categories = get_sub_field('categories');
 $per_page = get_sub_field('per_page') ?: 6;
+$max_articles = get_sub_field('max_articles'); // Optional limit for grid layout
 $carousel_count = get_sub_field('carousel_count') ?: 6;
 
 // Determine posts per page based on layout
@@ -26,9 +27,35 @@ $query_args = array(
     'order' => 'DESC',
 );
 
-// Add pagination for grid layout
-if ($layout === 'grid') {
-    $query_args['paged'] = $paged;
+// Handle max_articles limit for grid layout
+if ($layout === 'grid' && $max_articles && $max_articles > 0) {
+    // Calculate max pages based on limit
+    $max_pages = ceil($max_articles / $per_page);
+    
+    // Don't allow paged to exceed max pages
+    if ($paged > $max_pages) {
+        $paged = $max_pages;
+    }
+    
+    // Calculate offset for current page
+    $offset = ($paged - 1) * $per_page;
+    
+    // Only fetch what we need for this page, up to the limit
+    $posts_needed = min($per_page, $max_articles - $offset);
+    
+    if ($posts_needed > 0 && $offset < $max_articles) {
+        $query_args['offset'] = $offset;
+        $query_args['posts_per_page'] = $posts_needed;
+        $query_args['no_found_rows'] = true; // Don't count all posts
+    } else {
+        // No posts to show on this page
+        $query_args['post__in'] = array(0); // Return no posts
+    }
+} else {
+    // Normal pagination without limit
+    if ($layout === 'grid') {
+        $query_args['paged'] = $paged;
+    }
 }
 
 // Filter by categories if selected
@@ -44,6 +71,12 @@ if ($categories && !empty($categories)) {
 
 // Query articles
 $articles_query = new WP_Query($query_args);
+
+// Override max_num_pages if max_articles limit is set
+if ($layout === 'grid' && $max_articles && $max_articles > 0) {
+    $max_pages = ceil($max_articles / $per_page);
+    $articles_query->max_num_pages = $max_pages;
+}
 ?>
 
 <?php if ($articles_query->have_posts()) : ?>

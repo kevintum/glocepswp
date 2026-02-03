@@ -443,6 +443,44 @@ function gloceps_register_post_types() {
         )
     );
 
+    // Jobs/Vacancies CPT
+    register_post_type(
+        'vacancy',
+        array(
+            'labels'             => array(
+                'name'               => _x( 'Jobs', 'post type general name', 'gloceps' ),
+                'singular_name'      => _x( 'Job', 'post type singular name', 'gloceps' ),
+                'menu_name'          => _x( 'Jobs', 'admin menu', 'gloceps' ),
+                'add_new'            => _x( 'Add New', 'job', 'gloceps' ),
+                'add_new_item'       => __( 'Add New Job', 'gloceps' ),
+                'edit_item'          => __( 'Edit Job', 'gloceps' ),
+                'new_item'           => __( 'New Job', 'gloceps' ),
+                'view_item'          => __( 'View Job', 'gloceps' ),
+                'search_items'       => __( 'Search Jobs', 'gloceps' ),
+                'not_found'          => __( 'No jobs found', 'gloceps' ),
+                'not_found_in_trash' => __( 'No jobs found in Trash', 'gloceps' ),
+            ),
+            'public'             => true,
+            'publicly_queryable' => true,
+            'show_ui'            => true,
+            'show_in_menu'       => true,
+            'query_var'          => true,
+            'rewrite'            => array( 
+                'slug' => 'vacancies',
+                'with_front' => false,
+                'pages' => true,
+                'feeds' => true,
+            ),
+            'capability_type'    => 'post',
+            'has_archive'        => true,
+            'hierarchical'       => false,
+            'menu_position'      => 12,
+            'menu_icon'          => 'dashicons-businessperson',
+            'supports'           => array( 'title', 'editor', 'thumbnail', 'excerpt' ),
+            'show_in_rest'       => true,
+        )
+    );
+
     // Speeches CPT
     register_post_type(
         'speech',
