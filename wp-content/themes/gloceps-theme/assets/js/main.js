@@ -1187,21 +1187,6 @@
         e.preventDefault();
         const card = bioLink.closest('.team-card');
         if (card) {
-          // #region agent log
-          fetch('http://127.0.0.1:7242/ingest/09ec82c7-ebc5-4630-a97b-1172a388b9cc', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              location: 'main.js:bioLinkClick',
-              message: 'Bio link clicked',
-              data: { cardFound: !!card, cardName: card?.dataset?.name },
-              timestamp: Date.now(),
-              sessionId: 'debug-session',
-              runId: 'post-fix',
-              hypothesisId: 'F'
-            })
-          }).catch(() => {});
-          // #endregion
           openBioModal(card);
         }
       }
@@ -2312,22 +2297,6 @@
     const page = parseInt(link.getAttribute('data-page'));
     const category = link.getAttribute('data-category');
     const section = document.querySelector(`.team-category-section[data-category="${category}"]`);
-    
-    // #region agent log
-    fetch('http://127.0.0.1:7242/ingest/09ec82c7-ebc5-4630-a97b-1172a388b9cc', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        location: 'main.js:teamPaginationClick',
-        message: 'Pagination link clicked',
-        data: { page, category, sectionFound: !!section },
-        timestamp: Date.now(),
-        sessionId: 'debug-session',
-        runId: 'post-fix',
-        hypothesisId: 'B'
-      })
-    }).catch(() => {});
-    // #endregion
         
     if (!section) {
       console.warn('Team section not found for category:', category);
@@ -2357,22 +2326,6 @@
     });
     
     // Make AJAX request
-    // #region agent log
-    fetch('http://127.0.0.1:7242/ingest/09ec82c7-ebc5-4630-a97b-1172a388b9cc', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        location: 'main.js:beforeAjax',
-        message: 'Before AJAX request',
-        data: { ajaxurl: glocepsAjax.ajaxurl, category, page },
-        timestamp: Date.now(),
-        sessionId: 'debug-session',
-        runId: 'post-fix',
-        hypothesisId: 'C'
-      })
-    }).catch(() => {});
-    // #endregion
-    
     fetch(glocepsAjax.ajaxurl, {
           method: 'POST',
           headers: {
@@ -2392,22 +2345,6 @@
       return response.json();
     })
     .then(data => {
-      // #region agent log
-      fetch('http://127.0.0.1:7242/ingest/09ec82c7-ebc5-4630-a97b-1172a388b9cc', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          location: 'main.js:ajaxResponse',
-          message: 'AJAX response received',
-          data: { success: data.success, page: data.data?.page, totalPages: data.data?.total_pages, htmlLength: data.data?.html?.length },
-          timestamp: Date.now(),
-          sessionId: 'debug-session',
-          runId: 'post-fix',
-          hypothesisId: 'D'
-        })
-      }).catch(() => {});
-      // #endregion
-      
       if (data.success) {
         // Replace grid content
         grid.innerHTML = data.data.html;
@@ -2443,21 +2380,6 @@
     })
     .catch(error => {
       console.error('Pagination error:', error);
-      // #region agent log
-      fetch('http://127.0.0.1:7242/ingest/09ec82c7-ebc5-4630-a97b-1172a388b9cc', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          location: 'main.js:ajaxError',
-          message: 'AJAX error',
-          data: { error: error.message, stack: error.stack },
-          timestamp: Date.now(),
-          sessionId: 'debug-session',
-          runId: 'post-fix',
-          hypothesisId: 'E'
-        })
-      }).catch(() => {});
-      // #endregion
       alert('Failed to load team members. Please try again.');
     })
     .finally(() => {
@@ -2481,27 +2403,6 @@
     // Use event delegation on document for more reliable handling
     document.removeEventListener('click', handleTeamPaginationClick);
     document.addEventListener('click', handleTeamPaginationClick);
-    
-    // #region agent log
-    const paginationLinks = document.querySelectorAll('.team-pagination .pagination__link[data-page]');
-    fetch('http://127.0.0.1:7242/ingest/09ec82c7-ebc5-4630-a97b-1172a388b9cc', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        location: 'main.js:initTeamPagination',
-        message: 'Team pagination init',
-        data: { 
-          linksFound: paginationLinks.length, 
-          glocepsAjax: typeof glocepsAjax !== 'undefined' ? 'exists' : 'missing',
-          ajaxurl: typeof glocepsAjax !== 'undefined' ? glocepsAjax.ajaxurl : 'N/A'
-        },
-        timestamp: Date.now(),
-        sessionId: 'debug-session',
-        runId: 'post-fix',
-        hypothesisId: 'A'
-      })
-    }).catch(() => {});
-    // #endregion
   }
   
   function updatePagination(pagination, currentPage, totalPages, category) {
