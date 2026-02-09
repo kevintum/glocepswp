@@ -416,9 +416,16 @@ p {
   max-width: 400px; /* Prevent logo from taking too much space */
 }
 
+/* When text is hidden, allow logo to take more space */
+.header__logo--no-text {
+  max-width: 500px;
+}
+
 .header__logo img {
   height: 48px;
   width: auto;
+  max-width: 100%;
+  object-fit: contain;
   filter: brightness(0) invert(1);
   transition: all var(--duration-base) var(--ease-out-quart);
 }
@@ -428,20 +435,36 @@ p {
   filter: none;
 }
 
-/* Logo Size Variations */
+/* Logo Size Variations - Responsive with proper aspect ratio */
 .header__logo-img--size-1 {
   height: 32px !important;
-  max-width: 50px;
+  max-width: none; /* Allow wider logos to display properly */
+  width: auto;
 }
 
 .header__logo-img--size-2 {
   height: 48px !important;
-  max-width: 75px;
+  max-width: none; /* Allow wider logos to display properly */
+  width: auto;
 }
 
 .header__logo-img--size-3 {
-  height: 64px !important;
-  max-width: 100px;
+  height: 72px !important; /* Balanced size - larger than default but not overwhelming */
+  max-width: none; /* Allow wider logos to display properly */
+  width: auto;
+}
+
+/* When text is hidden, allow logo to be larger */
+.header__logo--no-text .header__logo-img--size-1 {
+  height: 40px !important;
+}
+
+.header__logo--no-text .header__logo-img--size-2 {
+  height: 60px !important;
+}
+
+.header__logo--no-text .header__logo-img--size-3 {
+  height: 88px !important; /* Slightly larger when text is hidden, but still reasonable */
 }
 
 .header__logo-text {
@@ -1020,6 +1043,11 @@ p {
     max-width: 380px; /* Slightly smaller on desktop to give more room */
   }
   
+  /* When text is hidden, allow larger logo on desktop */
+  .header__logo--no-text {
+    max-width: 500px;
+  }
+  
   .nav__band {
     max-width: calc(100% - 420px); /* Adjust based on logo + actions space */
   }
@@ -1212,24 +1240,33 @@ p {
 /* Content Side (Left) */
 .hero__content-block {
   background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-green) 100%);
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
   display: flex;
   align-items: center;
-  padding: var(--space-16) var(--space-12) var(--space-16) var(--space-16);
+  padding: var(--space-16) var(--space-12) var(--space-16) var(--space-16); /* Increased left padding to move content inward and align with logo */
   position: relative;
   overflow: hidden;
   z-index: 1;
   isolation: isolate;
 }
 
+/* When background image is set, it will override the gradient via inline style */
+.hero__content-block[style*="background-image"] {
+  /* Background image is set via inline style, gradient remains as fallback in CSS */
+}
+
 .hero__content-inner {
   max-width: 540px;
-  margin-left: auto;
+  margin-left: 0; /* Align to left to match logo position */
+  color: var(--color-white); /* Ensure white text in hero content */
 }
 
 .hero__title {
   font-size: clamp(3rem, 5.5vw, 4.5rem); /* Larger for hero statement */
   color: var(--color-white);
-  margin-top: var(--space-8); /* Add space below logo on desktop */
+  margin-top: var(--space-12); /* Increased spacing from logo/header */
   margin-bottom: var(--space-6);
   font-weight: 400; /* Lighter weight to contrast with emphasized text */
   line-height: 1.1;
@@ -1264,8 +1301,9 @@ p {
   align-items: center;
   justify-content: center;
   gap: var(--space-2);
+  font-family: var(--font-primary); /* Explicitly set font family */
   font-size: clamp(1rem, 1.2vw, 1.125rem); /* Larger than standard text-base */
-  font-weight: 600;
+  font-weight: 700; /* Use bold (700) instead of semi-bold (600) for better visibility */
   color: var(--color-white);
   text-decoration: none;
   padding: var(--space-4) var(--space-8);
@@ -1288,37 +1326,78 @@ p {
 }
 
 .hero__link--secondary {
-  background: var(--color-gray-900) !important;
-  color: var(--color-white) !important;
-  border: 2px solid var(--color-gray-900) !important;
+  background: var(--color-green) !important; /* Changed from gray-900 to green */
+  color: #ffffff !important; /* Use direct white color value */
+  border: 2px solid var(--color-green) !important;
   padding: var(--space-4) var(--space-8) !important;
   display: inline-flex !important;
   align-items: center !important;
   justify-content: center !important;
   min-height: 44px !important;
-  line-height: 1 !important;
+  line-height: 1.2 !important; /* Match primary button line-height */
   height: auto !important;
+  font-family: var(--font-primary) !important; /* Explicitly set font family */
+  font-weight: 700 !important; /* Use bold (700) to match primary button and ensure visibility */
+  font-size: clamp(1rem, 1.2vw, 1.125rem) !important; /* Match primary button font size */
+}
+
+/* Force white color on secondary button - highest specificity */
+a.hero__link.hero__link--secondary,
+a.hero__link.hero__link--secondary:link,
+a.hero__link.hero__link--secondary:visited,
+a.hero__link.hero__link--secondary:active {
+  color: #ffffff !important;
+}
+
+a.hero__link.hero__link--secondary *,
+a.hero__link.hero__link--secondary:link *,
+a.hero__link.hero__link--secondary:visited *,
+a.hero__link.hero__link--secondary:active * {
+  color: #ffffff !important;
+}
+
+.hero__content-inner a.hero__link.hero__link--secondary,
+.hero__content-inner a.hero__link.hero__link--secondary * {
+  color: #ffffff !important;
 }
 
 .hero__link--secondary,
 .hero__link--secondary * {
-  line-height: 1 !important;
+  line-height: 1.2 !important; /* Match primary button line-height */
   margin: 0 !important;
   padding-top: 0 !important;
   padding-bottom: 0 !important;
+  font-weight: 700 !important; /* Use bold (700) to ensure visibility */
+  color: #ffffff !important; /* Use direct white color value on all children */
 }
 
 .hero__link--secondary .hero__link-text {
   display: inline !important;
-  line-height: 1 !important;
+  line-height: 1.2 !important; /* Match primary button line-height */
   vertical-align: middle !important;
+  font-weight: 700 !important; /* Use bold (700) to match primary button */
+  color: #ffffff !important; /* Use direct white color value on text */
+}
+
+/* Override any Effra font rules that might affect secondary button */
+body.font-effra-active .hero__link--secondary,
+body.font-effra-active .hero__link--secondary *,
+body.font-effra-active .hero__link--secondary .hero__link-text {
+  color: #ffffff !important;
+  font-weight: 700 !important;
 }
 
 .hero__link--secondary:hover {
-  background: var(--color-black) !important;
-  border-color: var(--color-black) !important;
+  background: var(--color-green-dark, #1a7a3e) !important; /* Darker green on hover */
+  border-color: var(--color-green-dark, #1a7a3e) !important;
+  color: #ffffff !important; /* Use direct white color value on hover */
   transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 6px 16px rgba(34, 139, 58, 0.4); /* Green shadow */
+}
+
+.hero__link--secondary:hover,
+.hero__link--secondary:hover * {
+  color: #ffffff !important; /* Use direct white color value on all children on hover */
 }
 
 /* On mobile, maintain button styling */
@@ -1467,6 +1546,7 @@ p {
 
   .hero__content-inner {
     max-width: 100%;
+    margin-left: 0; /* Keep left-aligned on tablet */
   }
 
   .hero__title {
@@ -4731,6 +4811,42 @@ div.trust-bar,
     flex-grow: 1; /* Allow logo area to expand and fill available space */
     flex-shrink: 1;
     min-width: 0;
+  }
+  
+  /* Ensure logo images are responsive on mobile */
+  .header__logo img {
+    max-width: 100%;
+    height: auto;
+    object-fit: contain;
+  }
+  
+  /* Responsive logo sizing on mobile */
+  .header__logo-img--size-1 {
+    max-height: 32px !important;
+    width: auto !important;
+  }
+  
+  .header__logo-img--size-2 {
+    max-height: 40px !important;
+    width: auto !important;
+  }
+  
+  .header__logo-img--size-3 {
+    max-height: 48px !important;
+    width: auto !important;
+  }
+  
+  /* When text is hidden on mobile, allow slightly larger logo */
+  .header__logo--no-text .header__logo-img--size-1 {
+    max-height: 36px !important;
+  }
+  
+  .header__logo--no-text .header__logo-img--size-2 {
+    max-height: 48px !important;
+  }
+  
+  .header__logo--no-text .header__logo-img--size-3 {
+    max-height: 56px !important;
   }
   
   .header__logo-text {

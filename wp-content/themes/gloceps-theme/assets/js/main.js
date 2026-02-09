@@ -2442,15 +2442,33 @@
   function initHeroCarousel() {
     const carousels = document.querySelectorAll('[data-hero-carousel]');
     
+    if (!carousels.length) return;
+    
     carousels.forEach(carousel => {
-      const track = carousel.querySelector('[data-carousel-track]');
-      const slides = carousel.querySelectorAll('.hero-carousel__slide');
-      const dots = carousel.querySelectorAll('[data-carousel-dots] .hero-carousel__dot');
-      const prevBtn = carousel.querySelector('[data-carousel-prev]');
-      const nextBtn = carousel.querySelector('[data-carousel-next]');
-      const autoplaySpeed = parseInt(carousel.getAttribute('data-autoplay')) || 5;
-      
-      if (!track || slides.length <= 1) return;
+      try {
+        const track = carousel.querySelector('[data-carousel-track]');
+        const slides = carousel.querySelectorAll('.hero-carousel__slide');
+        const dotsContainer = carousel.querySelector('[data-carousel-dots]');
+        const dots = dotsContainer ? dotsContainer.querySelectorAll('.hero-carousel__dot') : [];
+        const prevBtn = carousel.querySelector('[data-carousel-prev]');
+        const nextBtn = carousel.querySelector('[data-carousel-next]');
+        const autoplaySpeed = parseInt(carousel.getAttribute('data-autoplay')) || 5;
+        
+        // Validate required elements
+        if (!track) {
+          console.warn('Hero carousel: track element not found');
+          return;
+        }
+        
+        if (!slides || slides.length === 0) {
+          console.warn('Hero carousel: no slides found');
+          return;
+        }
+        
+        // Only initialize if there's more than one slide
+        if (slides.length <= 1) {
+          return;
+        }
       
       let currentSlide = 0;
       let autoplayTimer = null;
@@ -2497,49 +2515,82 @@
         clearInterval(autoplayTimer);
       }
       
-      // Dot navigation
-      dots.forEach((dot, index) => {
-        dot.addEventListener('click', () => {
-          goToSlide(index);
-        });
-      });
-      
-      // Arrow navigation
-      if (nextBtn) {
-        nextBtn.addEventListener('click', () => {
-          nextSlide();
-        });
-      }
-      
-      if (prevBtn) {
-        prevBtn.addEventListener('click', () => {
-          prevSlide();
-        });
-      }
-      
-      // Pause on hover
-      carousel.addEventListener('mouseenter', stopAutoplay);
-      carousel.addEventListener('mouseleave', startAutoplay);
-      
-      // Keyboard navigation
-      carousel.addEventListener('keydown', (e) => {
-        if (e.key === 'ArrowLeft') {
-          prevSlide();
-        } else if (e.key === 'ArrowRight') {
-          nextSlide();
+        // Dot navigation
+        if (dots && dots.length > 0) {
+          dots.forEach((dot, index) => {
+            if (dot) {
+              dot.addEventListener('click', (e) => {
+                e.preventDefault();
+                goToSlide(index);
+              });
+            }
+          });
         }
-      });
-      
-      // Start autoplay
-      startAutoplay();
+        
+        // Arrow navigation
+        if (nextBtn) {
+          nextBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            nextSlide();
+          });
+        } else {
+          console.warn('Hero carousel: next button not found');
+        }
+        
+        if (prevBtn) {
+          prevBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            prevSlide();
+          });
+        } else {
+          console.warn('Hero carousel: prev button not found');
+        }
+        
+        // Pause on hover
+        carousel.addEventListener('mouseenter', stopAutoplay);
+        carousel.addEventListener('mouseleave', startAutoplay);
+        
+        // Keyboard navigation
+        carousel.addEventListener('keydown', (e) => {
+          if (e.key === 'ArrowLeft') {
+            e.preventDefault();
+            prevSlide();
+          } else if (e.key === 'ArrowRight') {
+            e.preventDefault();
+            nextSlide();
+          }
+        });
+        
+        // Start autoplay
+        startAutoplay();
+      } catch (error) {
+        console.error('Hero carousel initialization error:', error);
+      }
     });
   }
   
-  // Initialize hero carousel
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initHeroCarousel);
-  } else {
+  // Initialize hero carousel with retry mechanism for staging environments
+  function initHeroCarouselWithRetry(retries = 3) {
+    const carousels = document.querySelectorAll('[data-hero-carousel]');
+    
+    if (carousels.length === 0 && retries > 0) {
+      // Retry after a short delay if carousels aren't found yet
+      setTimeout(() => {
+        initHeroCarouselWithRetry(retries - 1);
+      }, 100);
+      return;
+    }
+    
     initHeroCarousel();
+  }
+  
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+      initHeroCarouselWithRetry();
+    });
+  } else {
+    // If DOM is already loaded, try immediately but with retry fallback
+    initHeroCarouselWithRetry();
   }
 
   // ============================================

@@ -21,6 +21,7 @@ $video_file = get_sub_field('video_file');
 $video_url = get_sub_field('video_url'); // YouTube/Vimeo URL
 $poster_image = get_sub_field('poster_image');
 $hero_image = get_sub_field('hero_image');
+$content_background_image = get_sub_field('content_background_image');
 
 // Fallback values
 if (!$title) {
@@ -37,7 +38,7 @@ if (!$cta_text) {
 <!-- Hero - Immersive Split Layout -->
 <section class="hero hero--split">
     <!-- Content Side (Left) -->
-    <div class="hero__content-block">
+    <div class="hero__content-block"<?php if ($content_background_image && !empty($content_background_image['url'])) : ?> style="background-image: url('<?php echo esc_url($content_background_image['url']); ?>'); background-size: cover; background-position: center; background-repeat: no-repeat;"<?php endif; ?>>
         <div class="hero__content-inner">
             <h1 class="hero__title">
                 <?php echo wp_kses_post($title); ?>
@@ -72,11 +73,11 @@ if (!$cta_text) {
                 <?php if ($button2_text && $button2_link) : ?>
                     <?php if (is_array($button2_link)) : ?>
                         <a href="<?php echo esc_url($button2_link['url']); ?>" class="hero__link hero__link--secondary">
-                            <?php echo esc_html($button2_text ?: $button2_link['title']); ?>
+                            <span class="hero__link-text"><?php echo esc_html($button2_text ?: $button2_link['title']); ?></span>
                         </a>
                     <?php else : ?>
                         <a href="<?php echo esc_url($button2_link); ?>" class="hero__link hero__link--secondary">
-                            <?php echo esc_html($button2_text); ?>
+                            <span class="hero__link-text"><?php echo esc_html($button2_text); ?></span>
                         </a>
                     <?php endif; ?>
                 <?php endif; ?>

@@ -1474,8 +1474,9 @@
 }
 
 .hero__link--secondary {
-  opacity: 0.6 !important;
-  font-weight: 400 !important;
+  opacity: 1 !important; /* Full opacity for white text visibility */
+  font-weight: 700 !important; /* Bold to match primary button */
+  color: #ffffff !important; /* Ensure white color */
   text-decoration: none !important;
   border-bottom: none !important;
   padding-bottom: 0 !important;
@@ -1483,9 +1484,16 @@
 }
 
 .hero__link--secondary:hover {
-  opacity: 0.8 !important;
+  opacity: 1 !important; /* Full opacity on hover */
+  color: #ffffff !important; /* Ensure white color on hover */
   text-decoration: none !important;
   border-bottom: none !important;
+}
+
+.hero__link--secondary * {
+  opacity: 1 !important; /* Full opacity for all children */
+  color: #ffffff !important; /* Ensure white color on all children */
+  font-weight: 700 !important; /* Bold on all children */
 }
 
 /* Remove icon from secondary link */

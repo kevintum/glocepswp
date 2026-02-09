@@ -2863,6 +2863,14 @@ function gloceps_get_flexible_layouts() {
                     'instructions' => 'Fallback image shown when video is loading or unavailable.',
                 ),
                 array(
+                    'key' => 'field_hero_video_background_image',
+                    'label' => 'Content Background Image',
+                    'name' => 'content_background_image',
+                    'type' => 'image',
+                    'return_format' => 'array',
+                    'instructions' => 'Optional: Upload a background image for the content block (left side). If not provided, the gradient will be used as fallback.',
+                ),
+                array(
                     'key' => 'field_hero_video_btn1_text',
                     'label' => 'Button 1 Text',
                     'name' => 'button1_text',

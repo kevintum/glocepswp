@@ -130,8 +130,14 @@ function gloceps_logo() {
     // Add logo size class
     $logo_size_class = 'header__logo-img--size-' . esc_attr( $logo_size );
     
+    // Add class when text is hidden (allows logo to be larger)
+    $logo_classes = array( 'header__logo' );
+    if ( !$show_site_title && !$show_tagline ) {
+        $logo_classes[] = 'header__logo--no-text';
+    }
+    
     ?>
-    <a href="<?php echo esc_url( home_url( '/' ) ); ?>" class="header__logo" rel="home">
+    <a href="<?php echo esc_url( home_url( '/' ) ); ?>" class="<?php echo esc_attr( implode( ' ', $logo_classes ) ); ?>" rel="home">
         <?php if ( $logo_url ) : ?>
             <!-- Dark logo (default) - shown on light backgrounds -->
             <img src="<?php echo esc_url( $logo_url ); ?>" 

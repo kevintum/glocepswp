@@ -120,6 +120,13 @@ body.font-effra-active .hero__link {
   font-size: clamp(1rem, 1.2vw, 1.125rem) !important; /* Larger for hero */
 }
 
+/* Ensure secondary button is white and bold when Effra is active */
+body.font-effra-active .hero__link--secondary,
+body.font-effra-active .hero__link--secondary * {
+  color: #ffffff !important;
+  font-weight: 700 !important;
+}
+
 
 /* Pillar Hero Title */
 body.font-effra-active .pillar-hero__title {
