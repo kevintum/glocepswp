@@ -1567,6 +1567,7 @@ body.font-effra-active .hero__link--secondary .hero__link-text {
     min-height: 300px;
     max-height: 500px;
     width: 100%;
+    margin-top: var(--header-height); /* Push video down below header on mobile */
   }
   
   /* Ensure video and image fill mobile container identically */
