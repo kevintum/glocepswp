@@ -2468,6 +2468,15 @@ function gloceps_register_acf_fields() {
                 'ajax' => 0,
                 'return_format' => 'value',
             ),
+            array(
+                'key' => 'field_page_header_bg_image',
+                'label' => 'Page Header Background Image',
+                'name' => 'page_header_background_image',
+                'type' => 'image',
+                'return_format' => 'array',
+                'preview_size' => 'medium',
+                'instructions' => 'Upload a dark background image for inner page headers. This will be used on all pages with the minimal page header. When set, the header will use light styling (white logo) to contrast with the dark background.',
+            ),
         ),
         'location' => array(
             array(
@@ -3115,6 +3124,19 @@ function gloceps_get_flexible_layouts() {
                     'default_value' => 'GLOCEPS work cuts across five interconnected pillars addressing the most pressing challenges facing Eastern Africa and the broader region.',
                 ),
                 array(
+                    'key' => 'field_home_pillars_background_style',
+                    'label' => 'Background Style',
+                    'name' => 'background_style',
+                    'type' => 'select',
+                    'choices' => array(
+                        'default' => 'Default (White)',
+                        'gray' => 'Light Gray',
+                        'light-blue' => 'Light Blue',
+                    ),
+                    'default_value' => 'default',
+                    'instructions' => 'Choose a background style to visually distinguish this section from others.',
+                ),
+                array(
                     'key' => 'field_home_pillars_use_pillars',
                     'label' => 'Use Research Pillars as Default',
                     'name' => 'use_pillars',
@@ -3371,9 +3393,12 @@ function gloceps_get_flexible_layouts() {
                     'type' => 'select',
                     'choices' => array(
                         'default' => 'Default (White)',
+                        'gray' => 'Light Gray',
+                        'light-blue' => 'Light Blue',
                         'dark' => 'Dark Background',
                     ),
                     'default_value' => 'default',
+                    'instructions' => 'Choose a background style to visually distinguish this section from others.',
                 ),
             ),
         ),
@@ -3435,6 +3460,15 @@ function gloceps_get_flexible_layouts() {
                     ),
                     'default_value' => 'default',
                     'instructions' => 'Choose the color for the section title.',
+                ),
+                array(
+                    'key' => 'field_stats_background_image',
+                    'label' => 'Background Image',
+                    'name' => 'background_image',
+                    'type' => 'image',
+                    'return_format' => 'array',
+                    'preview_size' => 'medium',
+                    'instructions' => 'Upload a background image for the stats section. If not set, the default gradient will be used.',
                 ),
                 array(
                     'key' => 'field_stats_items',
@@ -3501,6 +3535,19 @@ function gloceps_get_flexible_layouts() {
                     'name' => 'description',
                     'type' => 'textarea',
                     'default_value' => 'Join our policy dialogues, roundtables, and expert discussions shaping regional discourse on critical issues.',
+                ),
+                array(
+                    'key' => 'field_events_background_style',
+                    'label' => 'Background Style',
+                    'name' => 'background_style',
+                    'type' => 'select',
+                    'choices' => array(
+                        'default' => 'Default (White)',
+                        'gray' => 'Light Gray',
+                        'light-blue' => 'Light Blue',
+                    ),
+                    'default_value' => 'default',
+                    'instructions' => 'Choose a background style to visually distinguish this section from others.',
                 ),
                 array(
                     'key' => 'field_events_count',
@@ -3776,6 +3823,19 @@ function gloceps_get_flexible_layouts() {
                     'name' => 'description',
                     'type' => 'textarea',
                     'rows' => 2,
+                ),
+                array(
+                    'key' => 'field_partners_background_style',
+                    'label' => 'Background Style',
+                    'name' => 'background_style',
+                    'type' => 'select',
+                    'choices' => array(
+                        'default' => 'Default (White)',
+                        'gray' => 'Light Gray',
+                        'light-blue' => 'Light Blue',
+                    ),
+                    'default_value' => 'default',
+                    'instructions' => 'Choose a background style to visually distinguish this section from others.',
                 ),
                 array(
                     'key' => 'field_partners_layout',
@@ -4634,6 +4694,19 @@ function gloceps_get_flexible_layouts() {
                     'name' => 'section_description',
                     'type' => 'text',
                     'default_value' => 'Opinion and analysis from our experts',
+                ),
+                array(
+                    'key' => 'field_latest_articles_background_style',
+                    'label' => 'Background Style',
+                    'name' => 'background_style',
+                    'type' => 'select',
+                    'choices' => array(
+                        'default' => 'Default (White)',
+                        'gray' => 'Light Gray',
+                        'light-blue' => 'Light Blue',
+                    ),
+                    'default_value' => 'default',
+                    'instructions' => 'Choose a background style to visually distinguish this section from others.',
                 ),
                 array(
                     'key' => 'field_latest_articles_layout',

@@ -25,7 +25,10 @@ query_posts(array(
 ?>
 
 <!-- Page Header -->
-<section class="page-header">
+<?php
+$header_attrs = gloceps_get_page_header_attrs(false);
+?>
+<section class="<?php echo esc_attr($header_attrs['classes']); ?>"<?php echo $header_attrs['style']; ?>>
     <div class="container">
         <div class="page-header__content">
             <?php gloceps_breadcrumbs(); ?>

@@ -7,6 +7,7 @@
 
 $section_title = get_sub_field('section_title') ?: 'Latest Articles';
 $section_description = get_sub_field('section_description') ?: 'Opinion and analysis from our experts';
+$background_style = get_sub_field('background_style') ?: 'default';
 $layout = get_sub_field('layout') ?: 'grid';
 $categories = get_sub_field('categories');
 $per_page = get_sub_field('per_page') ?: 6;
@@ -80,7 +81,7 @@ if ($layout === 'grid' && $max_articles && $max_articles > 0) {
 ?>
 
 <?php if ($articles_query->have_posts()) : ?>
-<section class="section" style="padding-top: var(--space-12); padding-bottom: var(--space-12);">
+<section class="section section--bg-<?php echo esc_attr($background_style); ?>" style="padding-top: var(--space-12); padding-bottom: var(--space-12);">
     <div class="container">
         <div class="section-header section-header--with-link">
             <div>

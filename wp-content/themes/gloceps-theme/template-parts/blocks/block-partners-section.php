@@ -10,12 +10,13 @@
 $eyebrow = get_sub_field('eyebrow') ?: 'Collaborations';
 $title = get_sub_field('title') ?: 'Our Partners';
 $description = get_sub_field('description');
+$background_style = get_sub_field('background_style') ?: 'default';
 $layout = get_sub_field('layout') ?: 'grid';
 $logos = get_sub_field('logos');
 $anchor_id = get_sub_field('anchor_id') ?: 'partners';
 ?>
 
-<section class="section partners-section" id="<?php echo esc_attr($anchor_id); ?>">
+<section class="section partners-section section--bg-<?php echo esc_attr($background_style); ?>" id="<?php echo esc_attr($anchor_id); ?>">
     <div class="container">
         <div class="section-header section-header--center reveal">
             <?php if ($eyebrow) : ?>

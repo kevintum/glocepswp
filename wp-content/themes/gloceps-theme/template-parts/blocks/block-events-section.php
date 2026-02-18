@@ -10,6 +10,7 @@
 $eyebrow = get_sub_field('eyebrow') ?: 'Upcoming';
 $title = get_sub_field('title') ?: 'Events & Dialogues';
 $description = get_sub_field('description') ?: 'Join our policy dialogues, roundtables, and expert discussions shaping regional discourse on critical issues.';
+$background_style = get_sub_field('background_style') ?: 'default';
 $count = get_sub_field('count') ?: 3;
 $only_upcoming = get_sub_field('only_upcoming');
 
@@ -37,7 +38,7 @@ if ($only_upcoming) {
 $events = new WP_Query($args);
 ?>
 
-<section class="section events-section">
+<section class="section events-section section--bg-<?php echo esc_attr($background_style); ?>">
     <div class="container">
         <div class="section-header section-header--center reveal">
             <?php if ($eyebrow) : ?>

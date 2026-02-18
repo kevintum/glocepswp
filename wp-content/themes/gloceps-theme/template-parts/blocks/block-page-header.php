@@ -12,9 +12,12 @@ $description = get_sub_field('description');
 if ( empty( $title ) ) {
     $title = get_the_title();
 }
+
+// Get page header attributes (includes background image support)
+$header_attrs = gloceps_get_page_header_attrs();
 ?>
 
-<section class="page-header page-header--minimal">
+<section class="<?php echo esc_attr($header_attrs['classes']); ?>"<?php echo $header_attrs['style']; ?>>
     <div class="container">
         <div class="page-header__content reveal">
             <?php gloceps_breadcrumbs(); ?>

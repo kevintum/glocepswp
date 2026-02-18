@@ -312,6 +312,31 @@ if ( class_exists( 'WooCommerce' ) ) {
     </div>
 </div>
 
+<!-- Font Size Accessibility Widget -->
+<div class="font-size-widget" id="font-size-widget" role="toolbar" aria-label="<?php esc_attr_e('Font size adjuster', 'gloceps'); ?>">
+    <span class="font-size-widget__label"><?php esc_html_e('TEXT SIZE', 'gloceps'); ?></span>
+    <div class="font-size-widget__buttons">
+        <button 
+            class="font-size-widget__button font-size-widget__button--small" 
+            data-size="small"
+            aria-label="<?php esc_attr_e('Small text size', 'gloceps'); ?>"
+            title="<?php esc_attr_e('Small text size', 'gloceps'); ?>"
+        >A</button>
+        <button 
+            class="font-size-widget__button font-size-widget__button--medium active" 
+            data-size="medium"
+            aria-label="<?php esc_attr_e('Medium text size', 'gloceps'); ?>"
+            title="<?php esc_attr_e('Medium text size', 'gloceps'); ?>"
+        >AA</button>
+        <button 
+            class="font-size-widget__button font-size-widget__button--large" 
+            data-size="large"
+            aria-label="<?php esc_attr_e('Large text size', 'gloceps'); ?>"
+            title="<?php esc_attr_e('Large text size', 'gloceps'); ?>"
+        >AAA</button>
+    </div>
+</div>
+
 <?php wp_footer(); ?>
 
 </body>

@@ -60,8 +60,32 @@ function gloceps_get_header_class() {
             $classes[] = 'header--on-primary';
         }
     } else {
-        // All other pages have dark header (shows dark logo on light background)
-        $classes[] = 'header--dark';
+        // Check if page header has background image (dark background)
+        $bg_image = get_field('page_header_background_image', 'option');
+        $has_bg_image = !empty($bg_image) && is_array($bg_image);
+        
+        // Check if this is a page type that would have a page-header section
+        // Exclude contact page and other pages that might not want the light header
+        $is_contact_page = false;
+        if (is_page()) {
+            $page_slug = get_post_field('post_name', get_the_ID());
+            $page_template = get_page_template_slug();
+            if ($page_slug === 'contact' || $page_template === 'page-templates/template-contact.php') {
+                $is_contact_page = true;
+            }
+        }
+        
+        // Only apply header--light for pages with background image AND that have page-header sections
+        // Exclude contact page - it should keep dark header unless explicitly set
+        $has_page_header = (is_archive() || is_singular() || is_search() || is_home()) && !$is_contact_page;
+        
+        if ($has_bg_image && $has_page_header) {
+            // Pages with dark background image use light header
+            $classes[] = 'header--light';
+        } else {
+            // All other pages have dark header (shows dark logo on light background)
+            $classes[] = 'header--dark';
+        }
     }
     
     // Add scrolled class will be handled by JavaScript
@@ -262,6 +286,40 @@ function gloceps_google_analytics() {
     }
 }
 add_action( 'wp_head', 'gloceps_google_analytics', 20 );
+
+/**
+ * Get page header background image attributes
+ * 
+ * @param bool $minimal Whether to include --minimal class (default: true)
+ * @param string $additional_classes Additional classes to add (optional)
+ * @return array Array with 'classes' and 'style' keys
+ */
+function gloceps_get_page_header_attrs( $minimal = true, $additional_classes = '' ) {
+    $bg_image = get_field('page_header_background_image', 'option');
+    $has_bg_image = !empty($bg_image) && is_array($bg_image);
+    $bg_image_url = $has_bg_image ? esc_url($bg_image['url']) : '';
+    
+    $classes = 'page-header';
+    if ($minimal) {
+        $classes .= ' page-header--minimal';
+    }
+    if ($additional_classes) {
+        $classes .= ' ' . $additional_classes;
+    }
+    if ($has_bg_image) {
+        $classes .= ' page-header--has-bg';
+    }
+    
+    $style = '';
+    if ($has_bg_image) {
+        $style = ' style="background-image: url(\'' . $bg_image_url . '\');"';
+    }
+    
+    return array(
+        'classes' => $classes,
+        'style' => $style,
+    );
+}
 
 /**
  * Truncate breadcrumb title to specified word limit

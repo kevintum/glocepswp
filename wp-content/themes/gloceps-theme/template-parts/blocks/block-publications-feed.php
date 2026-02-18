@@ -13,6 +13,14 @@ $count = get_sub_field('count') ?: 6;
 $show_filter = get_sub_field('show_filter');
 $view_all_link = get_sub_field('view_all_link');
 $style = get_sub_field('style') ?: 'default';
+$background_class = '';
+if ($style === 'gray') {
+    $background_class = 'section--bg-gray';
+} elseif ($style === 'light-blue') {
+    $background_class = 'section--bg-light-blue';
+} elseif ($style === 'dark') {
+    $background_class = 'publications-feed--dark';
+}
 
 // Get publication types for filter
 $pub_types = get_terms(array(
@@ -47,7 +55,7 @@ if ($filter_pillar) {
 $publications = new WP_Query($args);
 ?>
 
-<section class="section publications-feed <?php echo $style === 'dark' ? 'publications-feed--dark' : ''; ?>" id="publications">
+<section class="section publications-feed <?php echo esc_attr($background_class); ?>" id="publications">
     <div class="container">
         <div class="section-header section-header--with-action reveal">
             <div>

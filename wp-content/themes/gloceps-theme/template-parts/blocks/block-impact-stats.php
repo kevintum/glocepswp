@@ -14,6 +14,18 @@ $show_title = get_sub_field('show_title') !== false; // Default to true if not s
 $title_color = get_sub_field('title_color') ?: 'default'; // 'default' or 'white'
 $stats = get_sub_field('stats');
 $anchor_id = get_sub_field('anchor_id');
+$background_image = get_sub_field('background_image');
+
+// Get background image URL
+$bg_image_url = '';
+$has_bg_image = false;
+if ($background_image && is_array($background_image)) {
+    $bg_image_url = esc_url($background_image['url'] ?? '');
+    $has_bg_image = !empty($bg_image_url);
+} elseif ($background_image) {
+    $bg_image_url = esc_url(wp_get_attachment_image_url($background_image, 'full'));
+    $has_bg_image = !empty($bg_image_url);
+}
 
 // Default stats if none provided
 if (empty($stats)) {
@@ -46,7 +58,7 @@ if (empty($stats)) {
 }
 ?>
 
-<section class="section stats-section<?php echo $title_color === 'white' ? ' stats-section--white-title' : ''; ?>" <?php echo $anchor_id ? 'id="' . esc_attr($anchor_id) . '"' : ''; ?>>
+<section class="section stats-section<?php echo $title_color === 'white' ? ' stats-section--white-title' : ''; ?><?php echo $has_bg_image ? ' stats-section--has-bg' : ''; ?>" <?php echo $anchor_id ? 'id="' . esc_attr($anchor_id) . '"' : ''; ?><?php if ($has_bg_image) : ?> style="background-image: url('<?php echo $bg_image_url; ?>');"<?php endif; ?>>
     <div class="container">
         <?php if ($show_eyebrow || $show_title) : ?>
             <div class="section-header section-header--center reveal">

@@ -11,6 +11,7 @@
 $eyebrow = get_sub_field('eyebrow') ?: 'Research Focus Areas';
 $title = get_sub_field('title') ?: 'Our Five Pillars';
 $description = get_sub_field('description') ?: 'GLOCEPS work cuts across five interconnected pillars addressing the most pressing challenges facing Eastern Africa and the broader region.';
+$background_style = get_sub_field('background_style') ?: 'default';
 $use_pillars = get_sub_field('use_pillars') !== false; // Default to true
 $custom_cards = get_sub_field('cards');
 $use_page_featured_image = get_sub_field('use_page_featured_image') !== false; // Default to true
@@ -124,7 +125,7 @@ if (!$use_pillars && !empty($custom_cards)) {
 }
 ?>
 
-<section class="section" id="research">
+<section class="section section--bg-<?php echo esc_attr($background_style); ?>" id="research">
     <div class="container">
         <div class="section-header reveal">
             <?php if ($eyebrow) : ?>

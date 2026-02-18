@@ -2616,4 +2616,60 @@
     checkHeroSplit();
   }
 
+  // ============================================
+  // Font Size Accessibility Widget
+  // ============================================
+  const initFontSizeWidget = () => {
+    const widget = document.getElementById('font-size-widget');
+    if (!widget) return;
+
+    const buttons = widget.querySelectorAll('.font-size-widget__button');
+    const html = document.documentElement;
+
+    // Get saved preference or default to medium
+    const savedSize = localStorage.getItem('gloceps-font-size') || 'medium';
+
+    // Apply saved size on load
+    const applyFontSize = (size) => {
+      // Remove all font size classes from html element
+      html.classList.remove('font-size-small', 'font-size-medium', 'font-size-large');
+      
+      // Add the selected class to html element (not body)
+      html.classList.add(`font-size-${size}`);
+      
+      // Update button states
+      buttons.forEach(btn => {
+        btn.classList.remove('active');
+        if (btn.dataset.size === size) {
+          btn.classList.add('active');
+        }
+      });
+      
+      // Save to localStorage
+      localStorage.setItem('gloceps-font-size', size);
+    };
+
+    // Apply saved size
+    applyFontSize(savedSize);
+
+    // Add click handlers to buttons
+    buttons.forEach(button => {
+      button.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        const size = button.dataset.size;
+        if (size) {
+          applyFontSize(size);
+        }
+      });
+    });
+  };
+
+  // Initialize font size widget
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initFontSizeWidget);
+  } else {
+    initFontSizeWidget();
+  }
+
 })();
