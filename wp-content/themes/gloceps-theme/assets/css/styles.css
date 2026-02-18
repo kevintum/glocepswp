@@ -478,6 +478,11 @@ p {
   filter: none;
 }
 
+/* header--light uses separate light logo image, so no filter needed */
+.header--light:not(.scrolled) .header__logo img {
+  filter: none;
+}
+
 /* Logo Size Variations - Responsive with proper aspect ratio */
 .header__logo-img--size-1 {
   height: 32px !important;
@@ -2098,6 +2103,8 @@ body.font-effra-active .hero__link--secondary .hero__link-text {
 .section-header--with-action .btn {
   flex-shrink: 0;
   margin-top: 0;
+  margin-left: auto !important;
+  align-self: flex-start;
 }
 
 @media (max-width: 768px) {
@@ -2294,6 +2301,7 @@ body.font-effra-active .hero__link--secondary .hero__link-text {
 /* ============================================
    PUBLICATION CARDS - Editorial Style
    ============================================ */
+/* Two-column layout for homepage block (uses .pub-item elements) */
 .publications-feed {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -2301,7 +2309,7 @@ body.font-effra-active .hero__link--secondary .hero__link-text {
   margin-top: var(--space-8);
 }
 
-/* Two-column layout: 3 on left, 3 on right */
+/* Two-column layout: 3 on left, 3 on right for homepage */
 .publications-feed .pub-item:nth-child(odd) {
   /* Left column items */
 }
@@ -2310,11 +2318,45 @@ body.font-effra-active .hero__link--secondary .hero__link-text {
   /* Right column items */
 }
 
+/* When publications-feed contains publications-feed__grid, remove the two-column layout */
+/* This is for the publications-feed block on pillar pages */
+.publications-feed:has(.publications-feed__grid) {
+  display: block;
+  grid-template-columns: none;
+  gap: 0;
+  margin-top: 0;
+}
+
+/* The actual grid container for publication cards (used in publications-feed block) */
 .publications-feed__grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
   gap: var(--space-6);
   margin-top: var(--space-8);
+}
+
+/* Responsive grid for publications feed */
+@media (max-width: 1024px) {
+  .publications-feed__grid {
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  }
+}
+
+@media (max-width: 768px) {
+  .publications-feed {
+    grid-template-columns: 1fr;
+    gap: var(--space-4);
+  }
+  
+  .publications-feed__grid {
+    grid-template-columns: 1fr;
+    gap: var(--space-4);
+  }
+}
+
+/* For homepage publications feed block (if it uses pub-item instead of cards) */
+.publications-feed .pub-item {
+  /* This would be for a different layout if needed */
 }
 
 .publications-feed--dark {
@@ -4862,37 +4904,74 @@ div.trust-bar,
 /* Mobile header blue background for pages with light/transparent headers */
 @media (max-width: 1024px) {
   /* Add blue background to header on mobile for pages with transparent/light headers */
+  /* Note: header--light pages do NOT get blue background - they have white background */
+  /* Note: header--on-primary only has blue background when NOT scrolled */
   .header--transparent:not(.scrolled):not(.header--dark),
-  .header--on-primary,
+  .header--on-primary:not(.scrolled),
   /* Also apply to split header on pages with store-hero (purchase page) */
   body:has(.store-hero) .header--split:not(.scrolled) {
     background: var(--color-primary) !important;
   }
   
-  /* Ensure logo and text are white on blue background */
-  .header--transparent:not(.scrolled):not(.header--dark) .header__logo img,
-  .header--on-primary .header__logo img,
-  body:has(.store-hero) .header--split:not(.scrolled) .header__logo img {
-    filter: brightness(0) invert(1) !important;
+  /* When scrolled, header--on-primary has white background (like all headers on mobile) */
+  .header--on-primary.scrolled {
+    background: rgba(255, 255, 255, 0.98) !important;
+  }
+  
+  /* Ensure logo and text are white on blue background (for transparent/on-primary only when not scrolled) */
+  /* header--light uses separate light logo image, so no filter needed */
+  .header--transparent:not(.scrolled):not(.header--dark) .header__logo-img--light,
+  .header--on-primary:not(.scrolled) .header__logo-img--light,
+  body:has(.store-hero) .header--split:not(.scrolled) .header__logo-img--light {
+    display: block;
+  }
+  
+  .header--transparent:not(.scrolled):not(.header--dark) .header__logo-img--dark,
+  .header--on-primary:not(.scrolled) .header__logo-img--dark,
+  body:has(.store-hero) .header--split:not(.scrolled) .header__logo-img--dark {
+    display: none;
+  }
+  
+  /* When scrolled, header--on-primary shows dark logo (white background) */
+  .header--on-primary.scrolled .header__logo-img--dark {
+    display: block;
+  }
+  
+  .header--on-primary.scrolled .header__logo-img--light {
+    display: none;
   }
   
   .header--transparent:not(.scrolled):not(.header--dark) .header__logo-text strong,
-  .header--on-primary .header__logo-text strong,
+  .header--on-primary:not(.scrolled) .header__logo-text strong,
   body:has(.store-hero) .header--split:not(.scrolled) .header__logo-text strong {
     color: var(--color-white) !important;
   }
   
   .header--transparent:not(.scrolled):not(.header--dark) .header__logo-text span,
-  .header--on-primary .header__logo-text span,
+  .header--on-primary:not(.scrolled) .header__logo-text span,
   body:has(.store-hero) .header--split:not(.scrolled) .header__logo-text span {
     color: rgba(255, 255, 255, 0.7) !important;
   }
   
-  /* Toggle icon should be white on blue background */
+  /* When scrolled, header--on-primary text should be dark (white background) */
+  .header--on-primary.scrolled .header__logo-text strong {
+    color: var(--color-gray-900) !important;
+  }
+  
+  .header--on-primary.scrolled .header__logo-text span {
+    color: var(--color-gray-500) !important;
+  }
+  
+  /* Toggle icon should be white on blue background (when not scrolled) */
   .header--transparent:not(.scrolled):not(.header--dark) .nav__toggle-icon span,
-  .header--on-primary .nav__toggle-icon span,
+  .header--on-primary:not(.scrolled) .nav__toggle-icon span,
   body:has(.store-hero) .header--split:not(.scrolled) .nav__toggle-icon span {
     background: var(--color-white) !important;
+  }
+  
+  /* When scrolled, header--on-primary toggle icon should be dark (white background) */
+  .header--on-primary.scrolled .nav__toggle-icon span {
+    background: var(--color-gray-800) !important;
   }
   
   /* Site title wrapping on mobile - allow logo area to expand and fill space */
@@ -7339,22 +7418,33 @@ div.trust-bar,
 }
 
 /* Alternating background colors for publication cards */
-.publications-grid .publication-card:nth-child(3n+1),
-.publications-feed__grid .publication-card:nth-child(3n+1) {
+/* Note: Excluding publications-feed__grid to maintain original layout */
+.publications-grid .publication-card:nth-child(3n+1) {
   background: linear-gradient(135deg, rgba(63, 147, 193, 0.08) 0%, rgba(63, 147, 193, 0.03) 100%);
   border-color: rgba(63, 147, 193, 0.2);
 }
 
-.publications-grid .publication-card:nth-child(3n+2),
-.publications-feed__grid .publication-card:nth-child(3n+2) {
+.publications-grid .publication-card:nth-child(3n+2) {
   background: linear-gradient(135deg, rgba(112, 181, 68, 0.08) 0%, rgba(112, 181, 68, 0.03) 100%);
   border-color: rgba(112, 181, 68, 0.2);
 }
 
-.publications-grid .publication-card:nth-child(3n+3),
-.publications-feed__grid .publication-card:nth-child(3n+3) {
+.publications-grid .publication-card:nth-child(3n+3) {
   background: linear-gradient(135deg, rgba(196, 163, 90, 0.08) 0%, rgba(196, 163, 90, 0.03) 100%);
   border-color: rgba(196, 163, 90, 0.2);
+}
+
+/* Publications feed grid - maintain original white background for cards */
+/* This ensures the publications feed keeps its original clean layout */
+.publications-feed__grid .publication-card {
+  background: var(--color-white) !important;
+  border-color: var(--color-gray-200) !important;
+}
+
+/* Ensure cards in dark sections also maintain white background */
+.publications-feed--dark .publications-feed__grid .publication-card {
+  background: var(--color-white) !important;
+  border-color: var(--color-gray-200) !important;
 }
 
 .publication-card:hover {
@@ -17962,6 +18052,13 @@ body.woocommerce-order-pay .order-pay-page-wrapper {
   z-index: 1;
 }
 
+/* Add more padding for breadcrumb on minimal page headers with background */
+.page-header--minimal.page-header--has-bg .page-header__breadcrumb,
+.page-header--minimal.page-header--has-bg .breadcrumbs {
+  margin-top: var(--space-8);
+  margin-bottom: var(--space-6);
+}
+
 /* Article Single Page */
 .article-single__header {
   padding: var(--space-4) 0 var(--space-8);
@@ -19073,6 +19170,12 @@ body.woocommerce-order-pay .order-pay-page-wrapper {
   padding: var(--space-16) 0 var(--space-12);
 }
 
+/* Search page with background image - match regular page-header padding */
+.page-header--search.page-header--has-bg {
+  padding-top: calc(var(--header-height) + var(--space-20));
+  padding-bottom: var(--space-16);
+}
+
 .page-header--search .page-header__title {
   font-size: var(--text-4xl);
   font-weight: 700;
@@ -19083,6 +19186,27 @@ body.woocommerce-order-pay .order-pay-page-wrapper {
 .page-header--search .page-header__description {
   font-size: var(--text-lg);
   color: var(--color-gray-600);
+}
+
+/* Search page with background image - white text and more breadcrumb spacing */
+/* Match the spacing of regular page-header--has-bg pages */
+.page-header--search.page-header--has-bg {
+  padding-top: calc(var(--header-height) + var(--space-24));
+  padding-bottom: var(--space-16);
+}
+
+.page-header--search.page-header--has-bg .page-header__breadcrumb,
+.page-header--search.page-header--has-bg .breadcrumbs {
+  margin-top: 0;
+  margin-bottom: var(--space-6);
+}
+
+.page-header--search.page-header--has-bg .page-header__title {
+  color: var(--color-white);
+}
+
+.page-header--search.page-header--has-bg .page-header__description {
+  color: rgba(255, 255, 255, 0.9);
 }
 
 /* Search Page Container */
