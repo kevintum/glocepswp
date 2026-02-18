@@ -48,7 +48,16 @@ GLOCEPS is a comprehensive WordPress website designed to showcase research, publ
 - **Search Enhancement**: Search across all post types with filtering
 - **Pagination**: Custom pagination for all archive pages
 - **Responsive Design**: Mobile-first approach with breakpoint optimization
-- **Accessibility**: WCAG-compliant markup and semantic HTML
+- **Accessibility**: 
+  - WCAG-compliant markup and semantic HTML
+  - Font size adjuster widget (A, AA, AAA) with localStorage persistence
+  - Fluid typography system with customizable multipliers
+  - Keyboard navigation support
+- **Visual Design**:
+  - Alternating background colors on content cards (three-color pattern)
+  - Section background style options (default, gray, light-blue)
+  - Primary cyan color for section headers (h2)
+  - Page header background images with automatic header light/dark switching
 
 ### Performance & SEO
 - **Optimized Assets**: Minified CSS/JS, optimized images
@@ -241,11 +250,23 @@ The theme registers the following custom post types:
 
 The theme includes numerous reusable content blocks:
 
-- **Hero Sections**: Split hero, full-width hero, video hero
+- **Hero Sections**: 
+  - Split hero with video background and gradient overlay
+  - Full-width image carousel with auto-rotation (up to 3 slides)
+  - Video background hero with customizable content background image
+  - All hero blocks support prominent CTA buttons with primary/secondary styling
 - **Content Blocks**: Content with image, two-column content, call-to-action
-- **Grids**: Team grid, publication grid, event grid, card grid
-- **Sections**: FAQ section, testimonial section, stats section
-- **Special**: Research pillars, page headers, contact forms
+- **Grids**: Team grid, publication grid (two-column layout), event grid, card grid
+- **Sections**: 
+  - FAQ section
+  - Testimonial section
+  - Impact Statistics (with optional background image support)
+  - Publications Feed (with background style options)
+  - Events Section (with background style options)
+  - Latest Articles (with background style options)
+  - Partners Section (with background style options)
+  - Grid Cards/Bento Layout (with background style options)
+- **Special**: Research pillars, page headers (with background image support), contact forms
 
 ### Navigation System
 
@@ -275,6 +296,10 @@ The theme includes numerous reusable content blocks:
 Accessible via **Theme Settings** in WordPress admin:
 
 - **General Settings**: Site-wide settings, contact info, social media
+- **Header Settings**: 
+  - Logo configuration (light/dark variants)
+  - Site title and tagline display options
+  - Page header background image (applies to all inner pages)
 - **Archive Options**: Settings for each post type archive
 - **Text Truncation**: Control title/description truncation
 - **Font Settings**: Effra font activation
@@ -478,6 +503,16 @@ For issues or questions:
 - ✅ Archive pagination fixes
 - ✅ Navigation enhancements
 - ✅ Search functionality
+- ✅ Hero carousel block with auto-rotation
+- ✅ Hero video background with gradient and background image support
+- ✅ Font size accessibility widget (A, AA, AAA)
+- ✅ Page header background images with automatic header switching
+- ✅ Section background style options for visual distinction
+- ✅ Alternating background colors on content cards
+- ✅ Primary color section headers
+- ✅ Impact Statistics block with background image support
+- ✅ Publications two-column grid layout
+- ✅ Jobs custom post type
 
 ### Future Enhancements
 - [ ] Multi-language support (WPML/Polylang)
@@ -488,7 +523,31 @@ For issues or questions:
 
 ---
 
-**Last Updated**: December 2024  
-**Version**: 1.0.0  
+**Last Updated**: February 2026  
+**Version**: 1.1.0  
 **WordPress Version**: 6.4+  
 **PHP Version**: 8.0+
+
+## 🎨 Recent Updates (February 2026)
+
+### Visual Design Enhancements
+- **Section Background Styles**: Added background style options (default, gray, light-blue) to multiple blocks for visual distinction
+- **Content Card Colors**: Implemented alternating three-color pattern (blue, green, gold) on all content cards
+- **Section Headers**: Updated h2 section headers to use primary cyan color (#3f93c1) for brand consistency
+- **Impact Statistics**: Added background image support with gradient fallback and dark overlay
+
+### Hero Block Improvements
+- **Image Carousel**: New hero carousel block with up to 3 slides, auto-rotation, and prominent CTA buttons
+- **Video Background**: Enhanced with customizable content background image, gradient overlay, and improved button styling
+
+### Accessibility Features
+- **Font Size Widget**: Floating accessibility widget (A, AA, AAA) with localStorage persistence
+- **Fluid Typography**: CSS custom properties system for responsive font sizing with multipliers
+
+### Page Header Enhancements
+- **Background Images**: Configurable background images for page headers via theme settings
+- **Automatic Header Switching**: Header automatically switches to light variant when background image is used
+
+### Layout Improvements
+- **Publications Grid**: Two-column layout for publications feed to break monotony
+- **Card Styling**: Enhanced card designs with borders, rounded corners, and hover effects
