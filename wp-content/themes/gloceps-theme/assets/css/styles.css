@@ -1139,6 +1139,12 @@ p {
     background: var(--color-gray-800);
   }
   
+  /* On mobile, header--light pages have white header background, so toggle should be dark */
+  /* The page-header section with dark background starts below the header on mobile */
+  .header--light:not(.header--transparent):not(.header--on-primary) .nav__toggle-icon span {
+    background: var(--color-gray-800) !important;
+  }
+  
   /* Ensure page headers have proper padding for fixed header */
   .page-header {
     padding-top: calc(var(--header-height) + var(--space-12)) !important; /* Increased from var(--space-8) */
